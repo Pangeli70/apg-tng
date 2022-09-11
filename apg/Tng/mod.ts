@@ -1,0 +1,1 @@
+export { ApgTngService } from "./src/classes/ApgTngService.ts"

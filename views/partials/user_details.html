@@ -1,0 +1,10 @@
+<ul>
+  <% for (const fieldName in user.details) { %>
+    <!-- Do not show the Password field -->
+    <% if (fieldName !=="password" ) { %>
+      <li>
+        <% fieldName %>: <% user.details[fieldName] %>
+      </li>
+    <% } %>
+  <% } %>
+</ul>

@@ -1,0 +1,9 @@
+<% extends("/templates/pico_template.html") %>
+
+  <div style="max-width: 640px; margin: 50px auto;">
+    <h1>
+      <% user.name %>
+    </h1>
+    <img src="<% user.image %>">
+    <% partial("/partials/user_details.html") %>
+  </div>

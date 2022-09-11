@@ -1,0 +1,14 @@
+<table>
+  <% for (const link of links) { %>
+
+      <tr>
+        <td style="text-align: right; width: 50%;">
+          <a href="<% link.href %>"><% link.caption %></a>
+        </td>
+        <td>
+          <a href="<% link.href %>/tutorial">-> tutorial</a>
+        </td>
+      </tr>
+
+  <% } %>
+</table>
