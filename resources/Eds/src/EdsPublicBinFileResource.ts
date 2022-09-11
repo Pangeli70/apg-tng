@@ -2,7 +2,7 @@
  * @module [Tng/Resources]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.8.0 [APG 2022/04/03]
- * @version 0.9.1 [APG 2022/09/10]
+ * @version 0.9.1 [APG 2022/09/10] Deno Deploy Beta
  * -----------------------------------------------------------------------
  */
 import { Drash } from "../../../deps.ts";

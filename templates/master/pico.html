@@ -1,73 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title><% page.title %></title>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+  <title>
+    <% page.title %>
+  </title>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-    <meta name="author" content="APG Angeli Paolo Giusto" />
-    <meta name="description" content="Template Enginge Reference" />
-    <meta name="generator" content="Deno+Drash" />
-    <meta name="keywords" content="Deno, Drash, APG, Angeli Paolo, Paolo Angeli" />
-    <meta name="application-name" content="APG-TNG" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Favicon -->
-    <link rel="shortcut icon" type="image/x-icon" href="/public/img/ico/favicon.ico" />
+  <meta name="author" content="APG Angeli Paolo Giusto" />
+  <meta name="description" content="Template Enginge Reference" />
+  <meta name="generator" content="Deno+Drash" />
+  <meta name="keywords" content="Deno, Drash, APG, Angeli Paolo, Paolo Angeli" />
+  <meta name="application-name" content="APG-TNG" />
 
-    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.classless.min.css" />
-    <link rel="stylesheet" href="/public/css/picoCustom.css" />
-  </head>
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="/public/img/ico/favicon.ico" />
 
-  <body>
-    <header style="padding: 0">
-      <section id="title" style="padding: 0; margin: 0">
-        <table>
-          <tr>
-            <td style="width:4rem">
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.classless.min.css" />
+  <link rel="stylesheet" href="/public/css/picoCustom.css" />
+</head>
+
+<body>
+  <header style="padding: 0">
+    <section id="title" style="padding: 0; margin: 0">
+      <table>
+        <tr>
+          <td style="width:4rem">
+            <a href="/">
               <img src="/public/img/png/APG-logo-2022-128px.png" style="min-width:3rem; min-height:3rem; " />
-            </td>
-            <td>
-              <h2 style="margin-bottom: 0px">
-                <a href="/">APG-TNG</a><br />
-                <span style="font-size: 50%">SSR Html template engine</span>
-              </h2>
-            </td>
-          </tr>
-        </table>
-      </section>
-      
-      <% if(page.toolbar) {%>
+            </a>
+          </td>
+          <td>
+            <h2 style="margin-bottom: 0px">
+              APG-TNG<br>
+              <span style="font-size: 50%">SSR Html template engine</span>
+            </h2>
+          </td>
+        </tr>
+      </table>
+    </section>
+
+    <% if(page.toolbar) {%>
       <section id="bar" style="text-align: center;">
         <% page.toolbar %>
-        <hr>
+          <hr>
       </section>
       <% } %>
 
-      <h1 class="apg-page-title"><% page.title %></h1>
-    
-    </header>
+        <h1 class="apg-page-title">
+          <% page.title %>
+        </h1>
 
-    <main style="padding: 0">
-      <% yield %>
-    </main>
+  </header>
 
-    <footer style="padding: 0">
-      <hr />
-      <section id="footer" style="padding: 0; margin: 2em, 0, 0, 0">
-        <p style="text-align: center; font-size: 0.5em">
-          <em>
-            © 2017-2022 APG: free man angeli paolo giusto.<br />
-            Made with &#10084; using
-            <a href="https://deno.land/" target="_blank">Deno</a>,
-            <a href="https://drash.land/" target="_blank"> Drash</a>,
-            <a href="https://www.picocss.com/" target="_blank">Pico Css</a><br />
-            SSR HTML made with APG-TNG.<br />
-            Page released: <% page.released %>
-          </em>
-        </p>
-      </section>
-    </footer>
-  </body>
+  <main style="padding: 0">
+    <% yield %>
+  </main>
+
+  <footer style="padding: 0">
+    <hr />
+    <section id="footer" style="padding: 0; margin: 2em, 0, 0, 0">
+      <p style="text-align: center; font-size: 0.5em">
+        <em>
+          © 2017-2022 APG: free man angeli paolo giusto.<br />
+          Made with &#10084; using
+          <a href="https://deno.land/" target="_blank">Deno</a>,
+          <a href="https://drash.land/" target="_blank"> Drash</a>,
+          <a href="https://www.picocss.com/" target="_blank">Pico Css</a><br />
+          SSR HTML made with APG-TNG.<br />
+          Page released: <% page.released %>
+        </em>
+      </p>
+    </section>
+  </footer>
+</body>
+
 </html>

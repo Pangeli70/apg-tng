@@ -1,6 +1,9 @@
-import { ApgUtsMath } from "../../../Uts/mod.ts";
-
-
+/** -----------------------------------------------------------------------
+ * @module [Tng]
+ * @author [APG] ANGELI Paolo Giusto
+ * @version 0.9.0 [APG 2022/09/11] Beta
+ * ------------------------------------------------------------------------
+ */
 type TApgTngTemplateFunction = (a: any) => string;
 
 enum eTngMkpDict {
@@ -40,9 +43,6 @@ export class ApgTngService {
         consoleLog: false
     }
 
-    // UGLY Code smell too many arguments
-    // Create options object 
-    // -- APG 20220910
     static Init(
         atemplatesPath: string,
         aoptions?: IApgTngServiceOptions
@@ -79,7 +79,7 @@ export class ApgTngService {
         auseCache = true // we can override cache usage per single call
     ) {
         if (this._options.consoleLog)
-            console.log(`${this.CLASS_NAME}: function ${this.Render.name} invoked for template${ atemplateFile}`);
+            console.log(`${this.CLASS_NAME}.${this.Render.name} invoked for template ${ atemplateFile}`);
 
         if (!atemplateData) {
             atemplateData = {};
@@ -96,7 +96,7 @@ export class ApgTngService {
         if (useCache && this._functionsCache.has(template)) {
             templateFunction = this._functionsCache.get(template)!;
             if (this._options.consoleLog)
-                console.log(`${this.CLASS_NAME}: function ${template} retrieved from cache!`);
+                console.log(`${this.CLASS_NAME}: function for template ${template} retrieved from cache!`);
         }
         else {
             const js = await this.#getTemplateAsJavascript(template, useCache);
@@ -104,7 +104,7 @@ export class ApgTngService {
                 templateFunction = new Function("templateData", js) as TApgTngTemplateFunction;
                 weHaveNewFunctionToStoreInCache = true;
                 if (this._options.consoleLog)
-                    console.log(`${this.CLASS_NAME}: function for ${template} was built!`);
+                    console.log(`${this.CLASS_NAME}: function for template ${template} was built!`);
             } catch (err) {
                 return this.#handleJSError(err, template, js);
             }
@@ -117,8 +117,8 @@ export class ApgTngService {
             if (weHaveNewFunctionToStoreInCache && this._options.useCache) {
                 this._functionsCache.set(template, templateFunction!);
                 if (this._options.consoleLog) {
-                    console.log(`${this.CLASS_NAME}: function ${template} is stored in cache!`);
-                    console.log(`${this.CLASS_NAME}: cache now contains ${this._functionsCache.size.toString()} items.`);
+                    console.log(`${this.CLASS_NAME}: function for template ${template} is stored in cache!`);
+                    console.log(`${this.CLASS_NAME}: functions cache now contains ${this._functionsCache.size.toString()} items.`);
                 }
             }
         } catch (err) {
@@ -256,7 +256,7 @@ export class ApgTngService {
     static async #getTemplateFile(atemplate: string, auseCache: boolean) {
 
         if (this._options.consoleLog)
-            console.log(`${this.CLASS_NAME}: function ${this.#getTemplateFile.name} invoked for template${atemplate}`);
+            console.log(`${this.CLASS_NAME}.${this.#getTemplateFile.name} invoked for template ${atemplate}`);
 
 
         if (auseCache && this._filesCache.has(atemplate)) {
