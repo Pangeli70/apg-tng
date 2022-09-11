@@ -33,7 +33,7 @@ export class ApgTngService {
     private static _functionsCache: Map<string, TApgTngTemplateFunction> = new Map();
 
     private static _templatesPath: string;
-    
+
     private static _options: IApgTngServiceOptions = {
         useCache: false,
         cacheChunksLongerThan: 100,
@@ -78,6 +78,8 @@ export class ApgTngService {
         atemplateData: unknown,
         auseCache = true // we can override cache usage per single call
     ) {
+        if (this._options.consoleLog)
+            console.log(`${this.CLASS_NAME}: function ${this.Render.name} invoked for template${ atemplateFile}`);
 
         if (!atemplateData) {
             atemplateData = {};
@@ -261,7 +263,7 @@ export class ApgTngService {
             try {
                 templateContent = await Deno.readTextFile(aviewName);
             } catch (e) {
-                console.log(e.message)
+                console.error(e)
                 throw e;
             }
             // CHECK Could be redundant in some cases if we overwite the cache. 

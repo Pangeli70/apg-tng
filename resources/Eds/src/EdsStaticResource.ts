@@ -60,8 +60,8 @@ export abstract class EdsStaticResource extends Drash.Resource {
 
       return r;
 
-    } catch (_error) {
-
+    } catch (error) {
+      console.error(error);
       throw new Drash.Errors.HttpError(
         400,
         `Error reading static resource (${aresourceFile}).`,
@@ -107,8 +107,8 @@ export abstract class EdsStaticResource extends Drash.Resource {
 
       return staticContent;
 
-    } catch (_error) {
-
+    } catch (error) {
+      console.error(error);
       throw new Drash.Errors.HttpError(
         400,
         `Error reading static resource (${aresourceFile}).`,
