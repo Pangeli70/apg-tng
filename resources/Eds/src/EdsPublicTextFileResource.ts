@@ -44,7 +44,7 @@ export class EdsPublicTextFileResource extends EdsStaticResource {
         type = 'text/plain'
     }
 
-    const file = "./" + new URL(request.url).pathname;
+    const file = Deno.cwd() + new URL(request.url).pathname;
 
     const text = await this.processText(file) as string;
 

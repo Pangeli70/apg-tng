@@ -42,7 +42,7 @@ export class EdsPublicBinFileResource extends EdsStaticResource {
         type = 'application/octet-stream'
     }
 
-    const file = "./" + new URL(request.url).pathname;
+    const file = Deno.cwd() + new URL(request.url).pathname;
     
     const content = await this.processBin(file) as Uint8Array;
     
