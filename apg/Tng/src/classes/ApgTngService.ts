@@ -85,7 +85,7 @@ export class ApgTngService {
             atemplateData = {};
         }
 
-        const viewName = this.#normalizeViewName(this._templatesPath, atemplateFile);
+        const template = this.#normalizeTemplateName(this._templatesPath, atemplateFile);
 
         const useCache = (auseCache && this._options.useCache!);
 
@@ -93,20 +93,20 @@ export class ApgTngService {
 
         let weHaveNewFunctionToStoreInCache = false;
 
-        if (useCache && this._functionsCache.has(viewName)) {
-            templateFunction = this._functionsCache.get(viewName)!;
+        if (useCache && this._functionsCache.has(template)) {
+            templateFunction = this._functionsCache.get(template)!;
             if (this._options.consoleLog)
-                console.log(`${this.CLASS_NAME}: function ${viewName} retrieved from cache!`);
+                console.log(`${this.CLASS_NAME}: function ${template} retrieved from cache!`);
         }
         else {
-            const js = await this.#getTemplateAsJavascript(viewName, useCache);
+            const js = await this.#getTemplateAsJavascript(template, useCache);
             try {
                 templateFunction = new Function("templateData", js) as TApgTngTemplateFunction;
                 weHaveNewFunctionToStoreInCache = true;
                 if (this._options.consoleLog)
-                    console.log(`${this.CLASS_NAME}: function for ${viewName} was built!`);
+                    console.log(`${this.CLASS_NAME}: function for ${template} was built!`);
             } catch (err) {
-                return this.#handleJSError(err, viewName, js);
+                return this.#handleJSError(err, template, js);
             }
         }
 
@@ -115,22 +115,22 @@ export class ApgTngService {
             result = templateFunction!.apply(this, [atemplateData]);
             // now we are sure that works so we can store!
             if (weHaveNewFunctionToStoreInCache && this._options.useCache) {
-                this._functionsCache.set(viewName, templateFunction!);
+                this._functionsCache.set(template, templateFunction!);
                 if (this._options.consoleLog) {
-                    console.log(`${this.CLASS_NAME}: function ${viewName} is stored in cache!`);
+                    console.log(`${this.CLASS_NAME}: function ${template} is stored in cache!`);
                     console.log(`${this.CLASS_NAME}: cache now contains ${this._functionsCache.size.toString()} items.`);
                 }
             }
         } catch (err) {
-            result = this.#handleJSError(err, viewName, templateFunction!.toString());
+            result = this.#handleJSError(err, template, templateFunction!.toString());
         }
         return result;
     }
 
 
-    static async #getTemplateAsJavascript(aviewName: string, auseCache: boolean) {
+    static async #getTemplateAsJavascript(atemplate: string, auseCache: boolean) {
 
-        const templateHtml = await this.#getTemplate(aviewName, auseCache);
+        const templateHtml = await this.#getTemplate(atemplate, auseCache);
 
         const rawJs: string[] = [];
         rawJs.push("with(templateData) {");
@@ -148,23 +148,23 @@ export class ApgTngService {
     }
 
 
-    static #normalizeViewName(aviewsPath: string, atemplateFile: string) {
+    static #normalizeTemplateName(atemplatessPath: string, atemplateFile: string) {
         if (this._templatesPath.endsWith("/") && atemplateFile.startsWith("/")) {
-            aviewsPath += atemplateFile.slice(1);
+            atemplatessPath += atemplateFile.slice(1);
         }
         else if (!this._templatesPath.endsWith("/") && !atemplateFile.startsWith("/")) {
-            aviewsPath += `/${atemplateFile}`;
+            atemplatessPath += `/${atemplateFile}`;
         }
         else {
-            aviewsPath += atemplateFile;
+            atemplatessPath += atemplateFile;
         }
-        return aviewsPath;
+        return atemplatessPath;
     }
 
 
-    static async #getTemplate(aviewName: string, auseCache: boolean) {
+    static async #getTemplate(atemplate: string, auseCache: boolean) {
 
-        let templateHtml: string = await this.#getTemplateFile(aviewName, auseCache);
+        let templateHtml: string = await this.#getTemplateFile(atemplate, auseCache);
 
         // Check if the template extends another template typically a master page
         // /<% extends.* %>/g
@@ -199,7 +199,7 @@ export class ApgTngService {
         for (let i = 0; i < partials.length; i++) {
 
             const partial = partials[i];
-            const partialView = ApgTngService.#getPartialView(partial);
+            const partialView = ApgTngService.#getPartialTemplate(partial);
             const partialHtml = await this.#getTemplateFile(partialView, auseCache);
 
             //insert the partial html inside the template
@@ -214,7 +214,7 @@ export class ApgTngService {
         for (let i = 0; i < ancestors.length; i++) {
 
             const ancestorMarkup = ancestors[i];
-            const ancestorView = this.#getAncestorView(ancestorMarkup);
+            const ancestorView = this.#getAncestorTemplate(ancestorMarkup);
             const ancestorHtml = await this.#getTemplateFile(ancestorView, auseCache);
 
             const strippedHtml = atemplateHtml.replace(ancestorMarkup, "");
@@ -226,19 +226,20 @@ export class ApgTngService {
         return r;
     }
 
-    static #getPartialView(apartial: string) {
+    static #getPartialTemplate(apartial: string) {
         const partialBeginMkp = `${eTngMkpDict.BEGIN} ${eTngMkpDict.PARTIAL}("`;
         const partialEndMkp = `") ${eTngMkpDict.END}`;
 
         const partialName = apartial
             .replace(partialBeginMkp, "")
             .replace(partialEndMkp, "");
-        const partialView = this._templatesPath + partialName;
+        
+        const r = this._templatesPath + partialName;
 
-        return partialView;
+        return r;
     }
 
-    static #getAncestorView(ancestorMarkup: string) {
+    static #getAncestorTemplate(ancestorMarkup: string) {
         // TODO Change logic use substring insetead that replace
         // -- APG 20220910
         const extendsBeginMkp = `${eTngMkpDict.BEGIN} ${eTngMkpDict.EXTENDS}("`;
@@ -247,21 +248,25 @@ export class ApgTngService {
         const ancestorViewName = ancestorMarkup
             .replace(extendsBeginMkp, "")
             .replace(extendsEndMkp, "");
-        const ancestorView = this._templatesPath + ancestorViewName;
+        const r = this._templatesPath + ancestorViewName;
 
-        return ancestorView;
+        return r;
     }
 
-    static async #getTemplateFile(aviewName: string, auseCache: boolean) {
+    static async #getTemplateFile(atemplate: string, auseCache: boolean) {
 
-        if (auseCache && this._filesCache.has(aviewName)) {
-            return this._filesCache.get(aviewName)!;
+        if (this._options.consoleLog)
+            console.log(`${this.CLASS_NAME}: function ${this.#getTemplateFile.name} invoked for template${atemplate}`);
+
+
+        if (auseCache && this._filesCache.has(atemplate)) {
+            return this._filesCache.get(atemplate)!;
         }
         else {
 
             let templateContent = ""
             try {
-                templateContent = await Deno.readTextFile(aviewName);
+                templateContent = await Deno.readTextFile(atemplate);
             } catch (e) {
                 console.error(e)
                 throw e;
@@ -269,7 +274,7 @@ export class ApgTngService {
             // CHECK Could be redundant in some cases if we overwite the cache. 
             // Or we waste memory since cache wont be used
             // -- APG 20220802
-            this._filesCache.set(aviewName, templateContent);
+            this._filesCache.set(atemplate, templateContent);
             return templateContent;
         }
 
@@ -324,7 +329,7 @@ export class ApgTngService {
         return r;
     }
 
-    static #handleJSError(aerr: Error, aviewName: string, ajs: string) {
+    static #handleJSError(aerr: Error, atemplate: string, ajs: string) {
         const notDefIndex = (<string>aerr.message).indexOf(" is not defined");
 
         console.error(`${this.CLASS_NAME} Error: ${aerr.message}`);
@@ -351,7 +356,7 @@ export class ApgTngService {
             </head>
             <body style="margin-left:20%; margin-right:20%; font-family: 'Segoe UI', 'Verdana';">
                 <h1>${this.CLASS_NAME} Error!</h1>
-                <h2>In the view: ${aviewName}</h2>
+                <h2>In the template: ${atemplate}</h2>
                 <h3 style="color:red;">${aerr.message}</h3>
                 <p>Cut and paste following code to a linter as potentially invalid javascript.</p>
                 <hr>
