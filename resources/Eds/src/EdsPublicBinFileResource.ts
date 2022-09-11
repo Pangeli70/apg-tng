@@ -12,8 +12,10 @@ import { EdsStaticResource } from "./EdsStaticResource.ts";
 export class EdsPublicBinFileResource extends EdsStaticResource {
 
   public paths = [
-    "/public/ico/.*\.(ico)",
-    "/public/img/.*\.(jpg|png)",
+    "/public/img/ico/.*\.(ico)",
+    "/public/img/jpg/.*\.(jpg|jpeg)",
+    "/public/img/png/.*\.(png)",
+    "/public/img/gif/.*\.(gif)",
     "/public/pdf/.*\.(pdf)",
     "/public/zip/.*\.(zip)"
   ];

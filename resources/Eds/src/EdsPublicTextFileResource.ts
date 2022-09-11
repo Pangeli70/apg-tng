@@ -17,7 +17,7 @@ export class EdsPublicTextFileResource extends EdsStaticResource {
     "/public/js/.*\.(js)",
     "/public/txt/.*\.(txt)",
     "/public/csv/.*\.(csv)",
-    "/public/img/.*\.(svg)",
+    "/public/img/svg/.*\.(svg)",
   ];
 
   public async GET(request: Drash.Request, response: Drash.Response) {
