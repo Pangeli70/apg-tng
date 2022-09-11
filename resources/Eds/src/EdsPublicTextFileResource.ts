@@ -20,7 +20,7 @@ export class EdsPublicTextFileResource extends EdsStaticResource {
     "/test/svg/.*\.(svg)",
   ];
 
-  public GET(request: Drash.Request, response: Drash.Response) {
+  public async GET(request: Drash.Request, response: Drash.Response) {
 
     const extension = request.url.split(".").at(-1);
     let type: string;
@@ -46,7 +46,7 @@ export class EdsPublicTextFileResource extends EdsStaticResource {
 
     const file = "./" + new URL(request.url).pathname;
 
-    const text = <string>this.processSync(file, true);
+    const text = await this.processAsync(file, true) as string;
 
     // TODO setup a configurable Browser's cache expiration setting like in binFileResource
     // -- APG 20220910

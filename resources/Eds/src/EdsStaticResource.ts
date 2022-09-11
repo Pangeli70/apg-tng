@@ -20,21 +20,21 @@ const CACHE_EXPIRATION = 1000;
 const staticResouceCache: { [key: string]: IApgEdsStaticResourceCacheableItem } = {};
 
 /**
- * Process static files syncronously using an in memory cache to speed up the process
+ * Process static files asyncronously using an in memory cache to speed up the process
  */
 export abstract class EdsStaticResource extends Drash.Resource {
 
-  protected processSync(aresourceFile: string, aisText: boolean): string | Uint8Array {
+  protected async processAsync(aresourceFile: string, aisText: boolean): Promise<string|Uint8Array> {
 
     try {
       let staticContent: string | Uint8Array;
 
       if (staticResouceCache[aresourceFile] == undefined) {
         if (aisText) {
-          staticContent = ApgUtsFs.ReadTextFileSync(aresourceFile);
+          staticContent = await Deno.readTextFile(aresourceFile);
         }
         else {
-          staticContent = ApgUtsFs.ReadBinFileSync(aresourceFile);
+          staticContent = await Deno.readFile(aresourceFile);
         }
 
         const staticCacheableItem: IApgEdsStaticResourceCacheableItem = {
@@ -52,10 +52,10 @@ export abstract class EdsStaticResource extends Drash.Resource {
 
         if (deltaTime > CACHE_EXPIRATION) {
           if (aisText) {
-            staticCacheableItem.content = ApgUtsFs.ReadTextFileSync(aresourceFile);
+            staticCacheableItem.content = await Deno.readTextFile(aresourceFile);
           }
           else {
-            staticCacheableItem.content = ApgUtsFs.ReadBinFileSync(aresourceFile);
+            staticCacheableItem.content = await Deno.readFile(aresourceFile);
           }
         }
 
