@@ -11,7 +11,11 @@ import { services } from "./svcs.ts";
 
 const port = 49601;
 
-ApgTngService.Init("./views", false, 100, true);
+ApgTngService.Init("./templates", {
+  useCache: false,
+  cacheChunksLongerThan: 100,
+  consoleLog: true
+});
 
 const server = new Drash.Server({
   hostname: '0.0.0.0',

@@ -1,3 +1,4 @@
+import { ApgUtsMath } from "../../../Uts/mod.ts";
 
 
 type TApgTngTemplateFunction = (a: any) => string;
@@ -8,6 +9,12 @@ enum eTngMkpDict {
     EXTENDS = "extends",
     BEGIN = "<%",
     END = "%>",
+}
+
+export interface IApgTngServiceOptions {
+    useCache?: boolean;
+    cacheChunksLongerThan?: number;
+    consoleLog?: boolean;
 }
 
 /**
@@ -25,24 +32,34 @@ export class ApgTngService {
     // Processed javascript functions
     private static _functionsCache: Map<string, TApgTngTemplateFunction> = new Map();
 
-    private static _viewsPath: string;
-    private static _cacheChunksLongerThan = 100
-    private static _useCache = false;
-    private static _consoleLog = false;
+    private static _templatesPath: string;
+    
+    private static _options: IApgTngServiceOptions = {
+        useCache: false,
+        cacheChunksLongerThan: 100,
+        consoleLog: false
+    }
 
     // UGLY Code smell too many arguments
     // Create options object 
     // -- APG 20220910
     static Init(
-        aviewsPath: string,
-        auseCache = false,
-        acacheChunksLongerThan = 100,
-        aconsoleLog = false
+        atemplatesPath: string,
+        aoptions?: IApgTngServiceOptions
     ) {
-        this._viewsPath = aviewsPath;
-        this._cacheChunksLongerThan = acacheChunksLongerThan;
-        this._useCache = auseCache;
-        this._consoleLog = aconsoleLog;
+        this._templatesPath = atemplatesPath;
+        if (aoptions) {
+            if (aoptions.useCache) {
+                this._options.useCache = aoptions.useCache;
+            }
+            if (aoptions.cacheChunksLongerThan) {
+                this._options.cacheChunksLongerThan = Math.round(aoptions.cacheChunksLongerThan);
+            }
+            if (aoptions.consoleLog) {
+                this._options.consoleLog = aoptions.consoleLog;
+            }
+        }
+
     }
 
     static #getChunk(achunkHash: number) {
@@ -66,9 +83,9 @@ export class ApgTngService {
             atemplateData = {};
         }
 
-        const viewName = this.#normalizeViewName(this._viewsPath, atemplateFile);
+        const viewName = this.#normalizeViewName(this._templatesPath, atemplateFile);
 
-        const useCache = (auseCache && this._useCache);
+        const useCache = (auseCache && this._options.useCache!);
 
         let templateFunction: TApgTngTemplateFunction;
 
@@ -76,7 +93,7 @@ export class ApgTngService {
 
         if (useCache && this._functionsCache.has(viewName)) {
             templateFunction = this._functionsCache.get(viewName)!;
-            if (this._consoleLog)
+            if (this._options.consoleLog)
                 console.log(`${this.CLASS_NAME}: function ${viewName} retrieved from cache!`);
         }
         else {
@@ -84,7 +101,7 @@ export class ApgTngService {
             try {
                 templateFunction = new Function("templateData", js) as TApgTngTemplateFunction;
                 weHaveNewFunctionToStoreInCache = true;
-                if (this._consoleLog)
+                if (this._options.consoleLog)
                     console.log(`${this.CLASS_NAME}: function for ${viewName} was built!`);
             } catch (err) {
                 return this.#handleJSError(err, viewName, js);
@@ -95,9 +112,9 @@ export class ApgTngService {
         try {
             result = templateFunction!.apply(this, [atemplateData]);
             // now we are sure that works so we can store!
-            if (weHaveNewFunctionToStoreInCache && this._useCache) {
+            if (weHaveNewFunctionToStoreInCache && this._options.useCache) {
                 this._functionsCache.set(viewName, templateFunction!);
-                if (this._consoleLog) {
+                if (this._options.consoleLog) {
                     console.log(`${this.CLASS_NAME}: function ${viewName} is stored in cache!`);
                     console.log(`${this.CLASS_NAME}: cache now contains ${this._functionsCache.size.toString()} items.`);
                 }
@@ -130,10 +147,10 @@ export class ApgTngService {
 
 
     static #normalizeViewName(aviewsPath: string, atemplateFile: string) {
-        if (this._viewsPath.endsWith("/") && atemplateFile.startsWith("/")) {
+        if (this._templatesPath.endsWith("/") && atemplateFile.startsWith("/")) {
             aviewsPath += atemplateFile.slice(1);
         }
-        else if (!this._viewsPath.endsWith("/") && !atemplateFile.startsWith("/")) {
+        else if (!this._templatesPath.endsWith("/") && !atemplateFile.startsWith("/")) {
             aviewsPath += `/${atemplateFile}`;
         }
         else {
@@ -214,7 +231,7 @@ export class ApgTngService {
         const partialName = apartial
             .replace(partialBeginMkp, "")
             .replace(partialEndMkp, "");
-        const partialView = this._viewsPath + partialName;
+        const partialView = this._templatesPath + partialName;
 
         return partialView;
     }
@@ -228,7 +245,7 @@ export class ApgTngService {
         const ancestorViewName = ancestorMarkup
             .replace(extendsBeginMkp, "")
             .replace(extendsEndMkp, "");
-        const ancestorView = this._viewsPath + ancestorViewName;
+        const ancestorView = this._templatesPath + ancestorViewName;
 
         return ancestorView;
     }
@@ -277,7 +294,7 @@ export class ApgTngService {
 
     static #convertJsChunkToJs(achunk: string) {
         let r = "";
-        const supportedJsKeywordsAndSymbolsRegex = /(^( )?(let|const|var|if|for|else|switch|case|break|{|}|;))(.*)?/g;
+        const supportedJsKeywordsAndSymbolsRegex = /(^( )?(let|const|if|else|switch|case|break|for|do|while|{|}|;))(.*)?/g;
         r = (achunk.match(supportedJsKeywordsAndSymbolsRegex)) ?
             // we expect supported js code, so insert js chunk as is
             achunk :
@@ -289,7 +306,7 @@ export class ApgTngService {
     static #convertHtmlChunkToJs(achunk: string) {
         let r = "";
 
-        if (this._useCache && achunk.length > this._cacheChunksLongerThan) {
+        if (this._options.useCache && achunk.length > this._options.cacheChunksLongerThan!) {
             const chunkHash = this.#brycHash(achunk);
             if (!this._chunksCache.has(chunkHash)) {
                 this._chunksCache.set(chunkHash, achunk)

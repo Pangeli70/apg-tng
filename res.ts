@@ -8,7 +8,7 @@ export const resources: typeof Drash.Resource[] = [
     res.EdsPublicBinFileResource,
 
     // Tng
-    res.TngIndexResource,
+    res.TngHomeResource,
     res.TngAaBasicExampleResource,
     res.TngAaBasicTutorialResource
 

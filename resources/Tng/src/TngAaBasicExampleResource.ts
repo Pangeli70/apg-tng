@@ -15,7 +15,7 @@ export class TngAaBasicExampleResource extends Drash.Resource {
 
         const toolBarHtml = `
     <div>
-        <a href="/">Index</a> |
+        <a href="/">Home</a> |
         <a href="/basic/tutorial">Tutorial</a>
     </div>
     `

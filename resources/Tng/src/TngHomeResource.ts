@@ -7,16 +7,15 @@
 import { Drash } from "../../../deps.ts";
 import { ApgTngService } from "../../../apg/Tng/mod.ts"
 
-export class TngIndexResource extends Drash.Resource {
+export class TngHomeResource extends Drash.Resource {
 
     public paths = ["/"];
 
     public async GET(_request: Drash.Request, response: Drash.Response) {
-        response.headers.set("Content-Type", "text/html");
 
         const templateData = {
             page: {
-                title: "Examples",
+                title: "Home",
                 toolbar: "",
                 released: "2022/09/10"
             },
@@ -28,7 +27,7 @@ export class TngIndexResource extends Drash.Resource {
             ],
         };
 
-        const html = await ApgTngService.Render("/index.html", templateData) as string;
+        const html = await ApgTngService.Render("/home.html", templateData) as string;
 
         response.html(html);
 

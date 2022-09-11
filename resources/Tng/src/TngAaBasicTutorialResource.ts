@@ -6,6 +6,7 @@
  */
 import { Drash } from "../../../deps.ts";
 import { ApgTngService } from "../../../apg/Tng/mod.ts"
+import { ApgUtsStr } from "../../../apg/Uts/mod.ts";
 
 export class TngAaBasicTutorialResource extends Drash.Resource {
 
@@ -15,7 +16,7 @@ export class TngAaBasicTutorialResource extends Drash.Resource {
 
         const toolBarHtml = `
     <div>
-        <a href="/">Index</a> |
+        <a href="/">Home</a> |
         <a href="/basic">Example</a>
     </div>
     `
@@ -29,7 +30,7 @@ export class TngAaBasicTutorialResource extends Drash.Resource {
       <img src="<% user.image %> style="width: 50%">
       <% partial("/partials/user_details.html") %>
     </div>`
-        const pageHtml = this.#escapeHTML(pageRawHtml);
+        const pageHtml = ApgUtsStr.EscapeHTML(pageRawHtml);
 
         const partialRawHtml = `
     <ul>
@@ -42,7 +43,7 @@ export class TngAaBasicTutorialResource extends Drash.Resource {
         <% } %>
     <% } %>
     </ul>`
-        const partialHtml = this.#escapeHTML(partialRawHtml);
+        const partialHtml = ApgUtsStr.EscapeHTML(partialRawHtml);
 
         const rawFieldsData = `
     const templateData = {
@@ -57,7 +58,7 @@ export class TngAaBasicTutorialResource extends Drash.Resource {
             },
         }
     }`
-        const fieldsData = this.#escapeHTML(rawFieldsData);
+        const fieldsData = ApgUtsStr.EscapeHTML(rawFieldsData);
 
         const rawDrashResource = `
     public async GET(_request: Drash.Request, response: Drash.Response) {
@@ -74,7 +75,7 @@ export class TngAaBasicTutorialResource extends Drash.Resource {
         response.html(html);
 
     }`
-        const drashResource = this.#escapeHTML(rawDrashResource);
+        const drashResource = ApgUtsStr.EscapeHTML(rawDrashResource);
 
         const templateData = {
             page: {
@@ -106,13 +107,5 @@ export class TngAaBasicTutorialResource extends Drash.Resource {
 
     }
 
-    #escapeHTML(astr: string) {
-
-        return astr
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#039;');
-    }
+   
 }
