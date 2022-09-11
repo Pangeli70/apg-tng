@@ -7,61 +7,101 @@
  * -----------------------------------------------------------------------
  */
 import { Drash } from "../../../deps.ts";
-import { ApgUtsFs } from "../../../apg/Uts/mod.ts";
 
 interface IApgEdsStaticResourceCacheableItem {
   count: number;
   content: string | Uint8Array;
+  isText: boolean;
   lastRequest: number;
 }
 
 const CACHE_EXPIRATION = 1000;
 
-const staticResouceCache: { [key: string]: IApgEdsStaticResourceCacheableItem } = {};
+const staticResoucesCache: { [key: string]: IApgEdsStaticResourceCacheableItem } = {};
 
 /**
- * Process static files asyncronously using an in memory cache to speed up the process
+ * Provides static files asyncronously using an in memory cache to speed up the process
  */
 export abstract class EdsStaticResource extends Drash.Resource {
 
-  protected async processAsync(aresourceFile: string, aisText: boolean): Promise<string|Uint8Array> {
+  protected async processText(aresourceFile: string): Promise<string> {
 
+    let r: string ;
     try {
-      let staticContent: string | Uint8Array;
 
-      if (staticResouceCache[aresourceFile] == undefined) {
-        if (aisText) {
-          staticContent = await Deno.readTextFile(aresourceFile);
-        }
-        else {
-          staticContent = await Deno.readFile(aresourceFile);
-        }
+      if (staticResoucesCache[aresourceFile] == undefined) {
+
+          r = await Deno.readTextFile(aresourceFile);
+
 
         const staticCacheableItem: IApgEdsStaticResourceCacheableItem = {
           count: 1,
-          content: staticContent,
+          content: r,
+          isText: true,
           lastRequest: performance.now()
         }
-        staticResouceCache[aresourceFile] = staticCacheableItem;
+        staticResoucesCache[aresourceFile] = staticCacheableItem;
       }
       else {
 
-        const staticCacheableItem: IApgEdsStaticResourceCacheableItem = staticResouceCache[aresourceFile];
+        const staticCacheableItem: IApgEdsStaticResourceCacheableItem = staticResoucesCache[aresourceFile];
         const currentTime = performance.now();
         const deltaTime = currentTime - staticCacheableItem.lastRequest;
 
         if (deltaTime > CACHE_EXPIRATION) {
-          if (aisText) {
             staticCacheableItem.content = await Deno.readTextFile(aresourceFile);
-          }
-          else {
-            staticCacheableItem.content = await Deno.readFile(aresourceFile);
-          }
         }
 
         staticCacheableItem.count++;
         staticCacheableItem.lastRequest = currentTime;
-        staticContent = staticCacheableItem.content;
+        r = staticCacheableItem.content as string;
+
+      }
+
+      return r;
+
+    } catch (_error) {
+
+      throw new Drash.Errors.HttpError(
+        400,
+        `Error reading static resource (${aresourceFile}).`,
+      );
+
+    }
+
+  }
+
+  protected async processBin(aresourceFile: string,): Promise<Uint8Array> {
+
+    let staticContent: Uint8Array;
+    try {
+
+      if (staticResoucesCache[aresourceFile] == undefined) {
+
+        staticContent = await Deno.readFile(aresourceFile);
+
+        const staticCacheableItem: IApgEdsStaticResourceCacheableItem = {
+          count: 1,
+          content: staticContent,
+          isText: false,
+          lastRequest: performance.now()
+        }
+
+        staticResoucesCache[aresourceFile] = staticCacheableItem;
+      }
+      else {
+
+        const staticCacheableItem: IApgEdsStaticResourceCacheableItem = staticResoucesCache[aresourceFile];
+        const currentTime = performance.now();
+        const deltaTime = currentTime - staticCacheableItem.lastRequest;
+
+        if (deltaTime > CACHE_EXPIRATION) {
+          staticCacheableItem.content = await Deno.readFile(aresourceFile);
+        }
+
+        staticCacheableItem.count++;
+        staticCacheableItem.lastRequest = currentTime;
+        staticContent = staticCacheableItem.content as Uint8Array;
 
       }
 

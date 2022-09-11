@@ -13,20 +13,46 @@ export class EdsPublicBinFileResource extends EdsStaticResource {
 
   public paths = [
     "/public/ico/.*\.(ico)",
-    "/public/img/.*\.(jpg|png|svg)",
-    "/public/pdf/.*\.(pdf)"
+    "/public/img/.*\.(jpg|png)",
+    "/public/pdf/.*\.(pdf)",
+    "/public/zip/.*\.(zip)"
   ];
 
-  public GET(request: Drash.Request, response: Drash.Response) {
+  public async GET(request: Drash.Request, response: Drash.Response) {
+
+    const extension = request.url.split(".").at(-1);
+    let type: string;
+    switch (extension) {
+      case 'ico':
+        type = 'image/x-icon'
+        break;
+      case 'jpg':
+        type = 'image/jpeg'
+        break;
+      case 'png':
+        type = 'image/png'
+        break;
+      case 'pdf':
+        type = 'application/pdf'
+        break;
+      case 'zip':
+        type = 'application/zip'
+        break;
+      default:
+        type = 'application/octet-stream'
+    }
 
     const file = "./" + new URL(request.url).pathname;
     
+    const content = await this.processBin(file) as Uint8Array;
+    
+    response.body = content;
+    response.headers.set("Content-Type", type);
+
     // TODO set up a configuration setting for this
     // -- APG 20220910
     const maxAge = 6 * 60 * 60; //6hr
     response.headers.append("Cache-Control", `private, max-age=${maxAge}, immutable`)
-    
-    response.file(file);
   }
 
 }
