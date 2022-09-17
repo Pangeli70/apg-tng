@@ -4,8 +4,8 @@
  * @version 0.9.1 [APG 2022/09/11] Deno Deploy Beta
  * -----------------------------------------------------------------------
  */
-import { Drash } from "../../../deps.ts";
-import { ApgTngService } from "../../../apg/Tng/mod.ts"
+import { Drash } from "../../deps.ts";
+import { ApgTngService } from "../../mod.ts"
 
 export class TngHomeResource extends Drash.Resource {
 

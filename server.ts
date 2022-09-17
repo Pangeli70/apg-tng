@@ -4,7 +4,7 @@
  * @version 0.9.1 [APG 2022/09/11] Deno Deploy Beta
  * -----------------------------------------------------------------------
  */
-import { ApgTngService } from "./apg/Tng/mod.ts";
+import { ApgTngService } from "./mod.ts";
 import { Drash } from "./deps.ts";
 import { resources } from "./res.ts";
 import { services } from "./svcs.ts";
@@ -27,6 +27,7 @@ const server = new Drash.Server({
 
 server.run();
 
+// Todo: use a funtion here using Uts -- APG 20220917  
 const now = new Date().toISOString();
 console.log(`\n\n\n******************************************************`)
 console.log(`                    Apg Tng `)

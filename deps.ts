@@ -11,3 +11,4 @@ export { CORSService as DrashCorsService } from "https://deno.land/x/drash@v2.5.
 
 // https://github
 export * as Edr from "https://raw.githubusercontent.com/Pangeli70/EDR/master/mod.ts";
+export * as Uts from "https://raw.githubusercontent.com/Pangeli70/UTS/master/mod.ts";
