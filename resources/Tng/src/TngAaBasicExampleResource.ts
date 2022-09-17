@@ -22,7 +22,7 @@ export class TngAaBasicExampleResource extends Drash.Resource {
 
         const templateData = {
             page: {
-                title: "Basic example",
+                title: "Basic Tng example",
                 toolbar: toolBarHtml,
                 released: "2022/09/10"
             },

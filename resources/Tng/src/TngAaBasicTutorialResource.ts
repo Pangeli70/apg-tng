@@ -79,7 +79,7 @@ export class TngAaBasicTutorialResource extends Drash.Resource {
 
         const templateData = {
             page: {
-                title: "Basic tutorial",
+                title: "Basic Tng tutorial",
                 toolbar: toolBarHtml,
                 released: "2022/09/10"
             },

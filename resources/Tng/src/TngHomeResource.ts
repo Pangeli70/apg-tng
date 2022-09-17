@@ -15,7 +15,7 @@ export class TngHomeResource extends Drash.Resource {
 
         const templateData = {
             page: {
-                title: "Home",
+                title: "Tng Home",
                 toolbar: "",
                 released: "2022/09/10"
             },
