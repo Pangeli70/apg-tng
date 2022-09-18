@@ -4,12 +4,17 @@
  * @version 0.9.1 [APG 2022/09/11] Deno Deploy Beta
  * -----------------------------------------------------------------------
  */
-import { ApgTngService } from "./mod.ts";
-import { Drash } from "./deps.ts";
+import { Drash, Uts } from "./deps.ts";
 import { resources } from "./res.ts";
 import { services } from "./svcs.ts";
+import { ApgTngService } from "./mod.ts";
 
-const port = 49601;
+const SERVER_INFO: Uts.IApgUtsServerInfo = {
+  name: 'Apg-Tng',
+  title: 'SSR Html template engine',
+  subtitle: 'Examples and tutorials',
+  localPort: 49601
+}
 
 ApgTngService.Init("./templates", {
   useCache: false,
@@ -19,7 +24,7 @@ ApgTngService.Init("./templates", {
 
 const server = new Drash.Server({
   hostname: '0.0.0.0',
-  port: port,
+  port: SERVER_INFO.localPort,
   resources: resources,
   services: services,
   protocol: "http"
@@ -27,13 +32,4 @@ const server = new Drash.Server({
 
 server.run();
 
-// Todo: use a funtion here using Uts -- APG 20220917  
-const now = new Date().toISOString();
-console.log(`\n\n\n******************************************************`)
-console.log(`                    Apg Tng `)
-console.log(`              SSR Html template engine`);
-console.log(`               Examples and tutorials`);
-console.log(`           ${now} (ISO)`);
-console.log(`               http://localhost:${port}`);
-console.log(`         Drash Server ready to receive request`);
-console.log(`******************************************************\n\n\n`)
+Uts.ApgUtsServer.StartupResume(SERVER_INFO);
