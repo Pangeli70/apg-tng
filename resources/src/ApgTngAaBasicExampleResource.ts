@@ -6,6 +6,7 @@
  */
 import { Drash } from "../../deps.ts";
 import { ApgTngService } from "../../mod.ts"
+import { ApgTngExamplesData } from "../data/ApgTngExamplesData.ts";
 
 export class ApgTngAaBasicExampleResource extends Drash.Resource {
 
@@ -21,25 +22,13 @@ export class ApgTngAaBasicExampleResource extends Drash.Resource {
     `
 
         const templateData = {
-            site: {
-                name: "Apg-Tng",
-                title: "SSR Html template engine"
-            },
+            site: ApgTngExamplesData.site,
             page: {
                 title: "Basic Tng example",
                 toolbar: toolBarHtml,
                 released: "2022/09/10"
             },
-            user: {
-                name: "APG",
-                image: "https://apg-cdn.deno.dev/public/img/jpg/Apg-2016.jpg",
-                details: {
-                    role: "Long-term software engineer apprentice",
-                    phone: "(+39) 329 3749029",
-                    "e-mail": "angelipaologiusto@gmail.com",
-                    password: "Super_Secret_Pa$$w0rd"
-                },
-            },
+            user: ApgTngExamplesData.users[2],
         };
 
         const html = await ApgTngService.Render("/examples/aa_basic_example.html", templateData) as string;

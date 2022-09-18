@@ -6,6 +6,7 @@
  */
 import { Drash, Uts } from "../../deps.ts";
 import { ApgTngService } from "../../mod.ts"
+import { ApgTngExamplesData } from "../data/ApgTngExamplesData.ts";
 
 export class ApgTngAaBasicTutorialResource extends Drash.Resource {
 
@@ -77,10 +78,7 @@ export class ApgTngAaBasicTutorialResource extends Drash.Resource {
         const drashResource = Uts.ApgUtsStr.EscapeHTML(rawDrashResource);
 
         const templateData = {
-            site: {
-                name: "Apg-Tng",
-                title: "SSR Html template engine"
-            },
+            site: ApgTngExamplesData.site,
             page: {
                 title: "Basic Tng tutorial",
                 toolbar: toolBarHtml,
@@ -92,16 +90,7 @@ export class ApgTngAaBasicTutorialResource extends Drash.Resource {
                 data: fieldsData,
                 resource: drashResource
             },
-            user: {
-                name: "APG",
-                image: "https://apg-cdn.deno.dev/public/img/jpg/Apg-2016.jpg",
-                details: {
-                    role: "Long-term software engineer apprentice",
-                    phone: "(+39) 329 3749029",
-                    "e-mail": "angelipaologiusto@gmail.com",
-                    password: "Super_Secret_Pa$$w0rd"
-                },
-            },
+            user: ApgTngExamplesData.users[0]
         };
 
         const html = await ApgTngService.Render("/tutorials/aa_basic_tutorial.html", templateData) as string;
@@ -110,5 +99,5 @@ export class ApgTngAaBasicTutorialResource extends Drash.Resource {
 
     }
 
-   
+
 }
