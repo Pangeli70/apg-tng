@@ -1,5 +1,5 @@
 /** -----------------------------------------------------------------------
- * @module [Tng/Resource]
+ * @module [Tng/Resources]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.9.1 [APG 2022/09/11] Deno Deploy Beta
  * -----------------------------------------------------------------------
@@ -7,7 +7,7 @@
 import { Drash, Uts } from "../../deps.ts";
 import { ApgTngService } from "../../mod.ts"
 
-export class TngAaBasicTutorialResource extends Drash.Resource {
+export class ApgTngAaBasicTutorialResource extends Drash.Resource {
 
     public paths = ["/basic/tutorial"];
 
@@ -77,6 +77,10 @@ export class TngAaBasicTutorialResource extends Drash.Resource {
         const drashResource = Uts.ApgUtsStr.EscapeHTML(rawDrashResource);
 
         const templateData = {
+            site: {
+                name: "Apg-Tng",
+                title: "SSR Html template engine"
+            },
             page: {
                 title: "Basic Tng tutorial",
                 toolbar: toolBarHtml,
@@ -90,7 +94,7 @@ export class TngAaBasicTutorialResource extends Drash.Resource {
             },
             user: {
                 name: "APG",
-                image: "/public/img/jpg/Apg2016.jpg",
+                image: "https://apg-cdn.deno.dev/public/img/jpg/Apg-2016.jpg",
                 details: {
                     role: "Long-term software engineer apprentice",
                     phone: "(+39) 329 3749029",

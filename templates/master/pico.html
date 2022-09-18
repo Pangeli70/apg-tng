@@ -3,7 +3,7 @@
 
 <head>
   <title>
-    <% page.title %>
+    <% site.name %>: <% page.title %>
   </title>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -13,14 +13,14 @@
   <meta name="author" content="APG Angeli Paolo Giusto" />
   <meta name="description" content="Template Enginge Reference" />
   <meta name="generator" content="Deno+Drash" />
-  <meta name="keywords" content="Deno, Drash, APG, Angeli Paolo, Paolo Angeli" />
-  <meta name="application-name" content="APG-TNG" />
+  <meta name="keywords" content="Deno, Drash, APG, Angeli Paolo Giusto, Paolo Angeli" />
+  <meta name="application-name" content="<% site.name %>" />
 
   <!-- Favicon -->
-  <link rel="shortcut icon" type="image/x-icon" href="/public/img/ico/favicon.ico" />
+  <link rel="shortcut icon" type="image/x-icon" href="https://apg-cdn.deno.dev/public/img/ico/Apg-favicon-2022.ico" />
 
   <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.classless.min.css" />
-  <link rel="stylesheet" href="/public/css/picoCustom.css" />
+  <link rel="stylesheet" href="https://apg-cdn.deno.dev/public/css/Apg-pico-custom.css" />
 </head>
 
 <body>
@@ -30,13 +30,14 @@
         <tr>
           <td style="width:4rem">
             <a href="/">
-              <img src="/public/img/png/APG-logo-2022-128px.png" style="min-width:3rem; min-height:3rem; " />
+              <img src="https://apg-cdn.deno.dev/public/img/png/APG-logo-2022-128px.png"
+                style="min-width:3rem; min-height:3rem; " />
             </a>
           </td>
           <td>
             <h2 style="margin-bottom: 0px">
-              APG-TNG<br>
-              <span style="font-size: 50%">SSR Html template engine</span>
+              <% site.name %><br>
+              <span style="font-size: 50%"><% site.title %></span>
             </h2>
           </td>
         </tr>

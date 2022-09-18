@@ -1,5 +1,5 @@
 /** -----------------------------------------------------------------------
- * @module [Tng/Resource]
+ * @module [Tng/Resources]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.9.1 [APG 2022/09/11] Deno Deploy Beta
  * -----------------------------------------------------------------------
@@ -7,15 +7,19 @@
 import { Drash } from "../../deps.ts";
 import { ApgTngService } from "../../mod.ts"
 
-export class TngHomeResource extends Drash.Resource {
+export class ApgTngHomeResource extends Drash.Resource {
 
     public paths = ["/"];
 
     public async GET(_request: Drash.Request, response: Drash.Response) {
 
         const templateData = {
+            site: { 
+                name: "Apg-Tng",
+                title: "SSR Html template engine"
+            },
             page: {
-                title: "Tng Home",
+                title: "Home",
                 toolbar: "",
                 released: "2022/09/10"
             },
