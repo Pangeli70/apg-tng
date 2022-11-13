@@ -1,0 +1,32 @@
+<details>
+    <summary>
+        <h2>Template markup</h2>
+    </summary>
+
+    <p>
+        To combine, merge and embed template files are available the following markup commands:
+    </p>
+    <ul>
+        <li>
+            <code>&lt;% extends([template]) %&gt;</code> Define an ancestor/parent template, typically a layout or
+            master page, for the current page template.
+        </li>
+        <li>
+            <code>&lt;% partial([template]) %&gt;</code> Define a sibling/child template, typically a reusable component
+            inside the current page template.
+        </li>
+        <li>
+            <code>&lt;% yield %&gt;</code> Used inside layout or master page template to define the placeholder where
+            the child template will be inserted.
+        </li>
+    </ul>
+    <p>
+        The <code>[template]</code> argument is the relative path of the HTML file that will be used.
+    </p>
+    <p>
+        Please note that the relative path can refer to a local folder or to a remote web server. In the latter case, the file is fetched as a deliverable portion.
+    </p>
+    <p>
+        The relative paths for the local and remote portions are set up with the <code>ApgTngService.Init(...)</code> method.
+    </p>
+</details>

@@ -1,0 +1,58 @@
+<details>
+  <summary>
+    <h2>Deliverables</h2>
+  </summary>
+  <p>
+    To promote the reuse of portions a web server can be used to store a library
+    of shared components ready to be delivered as small chunks of HTML with
+    specific markup.
+  </p>
+  <p>
+    To get those remote potions, the page developer could specify the full URL
+    to reach them on the remote server:
+  <pre><code>
+      &lt;% partial("https://apg-tng.deno.dev/deliver/pico/pico_flex_page_menu.html") %&gt;
+    </code></pre>
+  </p>
+  <p>
+    This syntax couples tightly the page to the remote site that delivers the
+    partials. So a remote host can be specified as an optional argument of the
+    <code>Init</code> method of the <b>ApgTngService</b>: see <b>initialization</b>.
+  </p>
+  <p>
+    It is possible to refer to remote deliverable portions in the markup
+    using the <code>{Host}</code> syntax:
+  <pre><code>
+      &lt;% partial("{Host}/deliver/pico/pico_flex_page_menu.html")%&gt;
+    </code></pre>
+  Alternatively to get the remote deliverable portion it is possible to use the
+  Host property directly in typescript code using the following syntax.
+  <pre><code>
+      const remoteToolbarPartial = ApgTngService.Host + "/deliver/pico/pico_h2_toolbar.html";
+      const toolBarData = {...}
+      const toolbarHtml = await ApgTngService.Render(remoteToolbarPartial, toolBarData) as string;
+    </code></pre>
+  </p>
+  <p>
+    <b>Important</b>. If the cache management is enabled the remote portions are
+    downloaded once and then are reused by the <code>ApgTngService</code> for all the following calls.
+  </p>
+  <p>
+    The deliverables usually are specific to a CSS framework, so it is suggested
+    practice to store them in an appropriate series of separate folders.<br>
+    <b>ApgTngService</b> can be paired with an <b>ApgTngServer</b> that defines
+    Drash resources to deliver portions to remote clients.<br>
+    See the <a href="/deliverable/frameworks">Deliverable framework</a> pages to
+    explore the portions delivered by this website.
+  </p>
+  <p>To strengthen the use of the deliverables, they can be paired with a JSON
+    schema of the template data expected to allow to the portion to render
+    correctly.
+  </p>
+  <p>
+    Having a JSON schema in the deliverable it is possible to call the RemoteRender method. 
+  </p>
+  <p>
+    Having a JSON Example data object in the deliverable it is possible to call the RenderExample method
+  </p>
+</details>

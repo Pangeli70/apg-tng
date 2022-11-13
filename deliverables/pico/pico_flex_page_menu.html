@@ -1,0 +1,64 @@
+<% schema({
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "links": {
+      "type": "array",
+      "items": [
+        {
+          "type": "object",
+          "properties": {
+            "href": {
+              "type": "string"
+            },
+            "caption": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "href",
+            "caption"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "links"
+  ]
+}) %>
+
+<% example({
+  "links" : [
+    { "href": "", "caption":"", "description":"" },
+    { "href": "", "caption":"", "description":"" },
+    { "href": "", "caption":""}
+  ]
+}) %>
+
+<% for (const link of links) { %>
+    <div style="display: flex; flex-flow: row wrap; align-items: center;">
+        <div>
+            <h2 style="margin: 1rem;">
+            <% if( link.href !="" ){ %>
+                <a href="<% link.href %>" role="button">
+                    <% link.caption %>
+                </a>
+            <% } else { %>
+                <% link.caption %>
+            <% } %>
+            </h2>
+        </div>
+
+        <% if( link.description != undefined ) { %>
+        <div>
+            <p style="margin: 1rem;">
+                <% link.description %>
+            </p>
+        </div>
+        <% } %>
+    </div>
+<% } %>

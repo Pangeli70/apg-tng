@@ -1,0 +1,16 @@
+<details>
+  <summary>
+    <h2>How it works</h2>
+  </summary>
+
+  <p>The templates are standard HTML files with additional specific markup
+    called partials. A parser analyzes the HTML files, identifies the specific
+    markup, and builds an anonymous javascript function on the fly. This
+    function will be used to render the actual HTML that will be served back to
+    ch client.
+  </p>
+  <p><code>ApgTngService</code> has several optimizations to speed up the
+    generation process.
+    Three different caches (that can be enabled optionally), are used to store
+    in memory the HTML templates and the generated functions.</p>
+</details>

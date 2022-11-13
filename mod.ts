@@ -4,4 +4,4 @@
  * ------------------------------------------------------------------------
 */
 export { ApgTngService} from "./src/classes/ApgTngService.ts"
-export type { IApgTngServiceOptions } from "./src/classes/ApgTngService.ts"
+export type { IApgTngServiceOptions } from "./src/interfaces/IApgTngServiceOptions.ts"

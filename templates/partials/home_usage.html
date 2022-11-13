@@ -1,0 +1,40 @@
+<details>
+  <summary>
+    <h2>Usage</h2>
+  </summary>
+  <p>
+    Once initialized the service it is possible to invoke the page generation
+    with the call to the <code>Render</code> method that has the following
+    signature:
+  </p>
+  <p>
+    <code>
+        ApgTngService.Render(
+          atemplateFile: string,
+          atemplateData: unknown,
+          auseCache = true
+        ): string;
+    </code>
+  </p>
+  <ul>
+    <li>
+      <code>atemplateFile</code> File with its relative path that has to be used
+      as a template. Can be an entire page or a portion ;
+    </li>
+    <li>
+      <code>atemplateData</code> Data object that has to be used for dynamic
+      field interpolation;
+    </li>
+    <li>
+      <code>auseCache</code> Flag that can be used to disable the
+      <code>useCache</code> initialization option. This can be useful 
+      to debug and develop some template portions even if the service is using the cache functionality for the others;
+    </li>
+  </ul>
+  <p>
+    The <code>Render</code> method can be used to render an entire page or a single portion, see <a href="/examples">examples</a> for more details.
+  </p>
+  <p>
+    The result is the interpolated HTML page or portion as a string that can be sent back to the client in response to an incoming request.
+  </p>
+</details>

@@ -11,7 +11,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <meta name="author" content="APG Angeli Paolo Giusto" />
-  <meta name="description" content="Template Enginge Reference" />
   <meta name="generator" content="Deno+Drash" />
   <meta name="keywords" content="Deno, Drash, APG, Angeli Paolo Giusto, Paolo Angeli" />
   <meta name="application-name" content="<% site.name %>" />
@@ -49,7 +48,7 @@
         <% page.toolbar %>
           <hr>
       </section>
-      <% } %>
+    <% } %>
 
         <h1 class="apg-page-title">
           <% page.title %>
@@ -62,20 +61,12 @@
   </main>
 
   <footer style="padding: 0">
-    <hr />
-    <section id="footer" style="padding: 0; margin: 2em, 0, 0, 0">
-      <p style="text-align: center; font-size: 0.5em">
-        <em>
-          © 2017-2022 APG: free man angeli paolo giusto.<br />
-          Made with &#10084; using
-          <a href="https://deno.land/" target="_blank">Deno</a>,
-          <a href="https://drash.land/" target="_blank"> Drash</a>,
-          <a href="https://www.picocss.com/" target="_blank">Pico Css</a><br />
-          SSR HTML made with APG-TNG.<br />
-          Page released: <% page.released %>
-        </em>
-      </p>
-    </section>
+    <% if(page.footer) {%>
+      <hr>
+      <section id="footer" style="padding: 0; margin: 2em, 0, 0, 0">
+        <% page.footer %>
+      </section>
+    <% } %>
   </footer>
 </body>
 

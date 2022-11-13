@@ -1,0 +1,42 @@
+<details>
+  <summary>
+    <h2>Initialization</h2>
+  </summary>
+
+  <p>
+    To configure the <code>ApgTngService</code> it is necessary to call the
+    <code>Init</code> method that has the
+    following signature.
+  </p>
+  <p>
+    <code>Init(alocalsPath: string, aremotesUrl: string, aoptions?: IApgTngServiceOptions)</code>
+  </p>
+  <p>
+    The <code>alocalsPath</code> argument defines the root path referred to
+    <code>Deno.cwd()</code> where the
+    local templates are stored.
+  </p>
+  <p>
+    The <code>aremotesUrl</code> argument defines the URL of a web server that
+    can deliver HTML templates and portions as text files. See the <b>deliverables</b> section ahead.
+  </p>
+  <p>
+    The options object has the following fields:
+  </p>
+  <ul>
+    <li>
+      <code>useCache: boolean </code> Default value is false. Enables the
+      caching systems of the service. <br>
+      See the dedicated section for further details.
+    </li>
+    <li>
+      <code>cacheChunksLongerThan: number</code> Default value is 100. When
+      field <code>useCache</code> is set to true defines the minimum number of characters of the HTML chunks that will be cached.
+    </li>
+    <li>
+      <code>consoleLog: boolean</code> Default value is false. It is used for
+      debugging purposes and prints on the StdOut stream the internal messages
+      related to the processing events.
+    </li>
+  </ul>
+</details>

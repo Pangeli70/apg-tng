@@ -15,7 +15,12 @@ export const resources: typeof Drash.Resource[] = [
 
     // Tng
     res.ApgTngHomeResource,
+    res.ApgTngExamplesResource,
     res.ApgTngAaBasicExampleResource,
-    res.ApgTngAaBasicTutorialResource
+    res.ApgTngAaBasicTutorialResource,
+    res.ApgTngDeliverResource,
+    res.ApgTngFrameworksResource,
+    res.ApgTngFrameworkResource,
+    res.ApgTngCacheResource,
 
 ];

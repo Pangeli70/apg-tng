@@ -2,23 +2,15 @@
  * @module [Tng]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.9.0 [APG 2022/09/11] Beta
+ * @version 0.9.2 [APG 2022/10/31] Deliverables portions
+ * @version 0.9.3 [APG 2022/11/05] Host
  * ------------------------------------------------------------------------
  */
-type TApgTngTemplateFunction = (a: any) => string;
+import { StdPath } from "../../deps.ts";
+import { eApgTngMkpDictionary } from "../enums/eApgTngMkpDictionary.ts";
+import type { IApgTngServiceOptions } from "../interfaces/IApgTngServiceOptions.ts";
 
-enum eTngMkpDict {
-    YIELD = "yield",
-    PARTIAL = "partial",
-    EXTENDS = "extends",
-    BEGIN = "<%",
-    END = "%>",
-}
-
-export interface IApgTngServiceOptions {
-    useCache?: boolean;
-    cacheChunksLongerThan?: number;
-    consoleLog?: boolean;
-}
+export type TApgTngTemplateFunction = (a: any) => string;
 
 /**
  * Modified by APG, starting from the original Drash Template Engine named Jae
@@ -28,6 +20,7 @@ export class ApgTngService {
     // Class Name
     static readonly CLASS_NAME = "ApgTngService";
 
+
     // Master and partials files
     private static _filesCache: Map<string, string> = new Map();
     // Html chunks hash Cache
@@ -35,19 +28,44 @@ export class ApgTngService {
     // Processed javascript functions
     private static _functionsCache: Map<string, TApgTngTemplateFunction> = new Map();
 
+    // Partials/Deliverables schemas in JSON format
+    private static _portionsSchemas: Map<string, string> = new Map();
+
+    // Partials/Deliverables examples in JSON format
+    private static _deliverableDataExamples: Map<string, string> = new Map();
+
     private static _templatesPath: string;
+
+    // TODO We still need to implement partial("{Host}/file.html")
+    private static _host: string;
 
     private static _options: IApgTngServiceOptions = {
         useCache: false,
         cacheChunksLongerThan: 100,
-        consoleLog: false
+        consoleLog: false,
+        // TODO remove this from here, maybe move inside ApgTngServer or not? 
+        deliverablesPath: ""
+    }
+
+    static get TemplatesPath() {
+        return this._templatesPath;
+    }
+
+    static get Host() {
+        return this._host;
+    }
+
+    static get DeliverablesPath() {
+        return this._options.deliverablesPath;
     }
 
     static Init(
         atemplatesPath: string,
+        ahost: string,
         aoptions?: IApgTngServiceOptions
     ) {
         this._templatesPath = atemplatesPath;
+        this._host = ahost;
         if (aoptions) {
             if (aoptions.useCache) {
                 this._options.useCache = aoptions.useCache;
@@ -58,9 +76,13 @@ export class ApgTngService {
             if (aoptions.consoleLog) {
                 this._options.consoleLog = aoptions.consoleLog;
             }
+            if (aoptions.deliverablesPath) {
+                this._options.deliverablesPath = aoptions.deliverablesPath;
+            }
         }
 
     }
+
 
     static #getChunk(achunkHash: number) {
         const maybeChunk = this._chunksCache.get(achunkHash);
@@ -79,13 +101,19 @@ export class ApgTngService {
         auseCache = true // we can override cache usage per single call
     ) {
         if (this._options.consoleLog)
-            console.log(`${this.CLASS_NAME}.${this.Render.name} invoked for template ${ atemplateFile}`);
+            console.log(`${this.CLASS_NAME}.${this.Render.name} invoked for template ${atemplateFile}`);
 
         if (!atemplateData) {
             atemplateData = {};
         }
 
-        const template = this.#normalizeTemplateName(this._templatesPath, atemplateFile);
+        if (atemplateFile.includes(eApgTngMkpDictionary.HOST)) {
+            atemplateFile.replace(eApgTngMkpDictionary.HOST, this.Host)
+        }
+
+        const isHttp = atemplateFile.startsWith("http");
+
+        const template = isHttp ? atemplateFile : StdPath.join(this._templatesPath, atemplateFile);
 
         const useCache = (auseCache && this._options.useCache!);
 
@@ -114,7 +142,7 @@ export class ApgTngService {
         try {
             result = templateFunction!.apply(this, [atemplateData]);
             // now we are sure that works so we can store!
-            if (weHaveNewFunctionToStoreInCache && this._options.useCache) {
+            if (weHaveNewFunctionToStoreInCache) {
                 this._functionsCache.set(template, templateFunction!);
                 if (this._options.consoleLog) {
                     console.log(`${this.CLASS_NAME}: function for template ${template} is stored in cache!`);
@@ -148,27 +176,14 @@ export class ApgTngService {
     }
 
 
-    static #normalizeTemplateName(atemplatessPath: string, atemplateFile: string) {
-        if (this._templatesPath.endsWith("/") && atemplateFile.startsWith("/")) {
-            atemplatessPath += atemplateFile.slice(1);
-        }
-        else if (!this._templatesPath.endsWith("/") && !atemplateFile.startsWith("/")) {
-            atemplatessPath += `/${atemplateFile}`;
-        }
-        else {
-            atemplatessPath += atemplateFile;
-        }
-        return atemplatessPath;
-    }
-
-
     static async #getTemplate(atemplate: string, auseCache: boolean) {
 
         let templateHtml: string = await this.#getTemplateFile(atemplate, auseCache);
 
         // Check if the template extends another template typically a master page
-        // /<% extends.* %>/g
-        const ancestorRegExpMkp = `${eTngMkpDict.BEGIN} ${eTngMkpDict.EXTENDS}.* ${eTngMkpDict.END}`
+        // /<% extends("...") %>
+        const ancestorRegExpMkp =
+            `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.EXTENDS}\\(\\".*\\"\\) ${eApgTngMkpDictionary.END}`
         const ancestorRegExp = new RegExp(ancestorRegExpMkp, "g")
         const ancestorMatches = templateHtml.match(ancestorRegExp);
         if (ancestorMatches) {
@@ -177,8 +192,9 @@ export class ApgTngService {
         }
 
         // Check recursively for nested partials
-        // /<% partial.* %>/g
-        const partialRegExpMkp = `${eTngMkpDict.BEGIN} ${eTngMkpDict.PARTIAL}.* ${eTngMkpDict.END}`;
+        // <% partial("...") %>
+        const partialRegExpMkp =
+            `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.PARTIAL}\\(\\".*\\"\\) ${eApgTngMkpDictionary.END}`;
         const partialRegExp = new RegExp(partialRegExpMkp, "g")
 
         // since we can have nested sub partials we need a loop for Regex match
@@ -199,8 +215,8 @@ export class ApgTngService {
         for (let i = 0; i < partials.length; i++) {
 
             const partial = partials[i];
-            const partialView = ApgTngService.#getPartialTemplate(partial);
-            const partialHtml = await this.#getTemplateFile(partialView, auseCache);
+            const partialName = ApgTngService.#getPartialTemplate(partial);
+            const partialHtml = await this.#getTemplateFile(partialName, auseCache);
 
             //insert the partial html inside the template
             r = atemplateHtml.replace(partial, partialHtml);
@@ -208,42 +224,45 @@ export class ApgTngService {
         return r;
     }
 
+
     static async #processAncestors(ancestors: RegExpMatchArray, auseCache: boolean, atemplateHtml: string) {
 
         let r = atemplateHtml;
         for (let i = 0; i < ancestors.length; i++) {
 
             const ancestorMarkup = ancestors[i];
-            const ancestorView = this.#getAncestorTemplate(ancestorMarkup);
-            const ancestorHtml = await this.#getTemplateFile(ancestorView, auseCache);
+            const ancestorName = this.#getAncestorTemplate(ancestorMarkup);
+            const ancestorHtml = await this.#getTemplateFile(ancestorName, auseCache);
 
             const strippedHtml = atemplateHtml.replace(ancestorMarkup, "");
 
             // insert the current template in the ancestor's one
-            const yeldMarkup = `${eTngMkpDict.BEGIN} ${eTngMkpDict.YIELD} ${eTngMkpDict.END}`;
+            const yeldMarkup = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.YIELD} ${eApgTngMkpDictionary.END}`;
             r = ancestorHtml.replace(yeldMarkup, strippedHtml);
         }
         return r;
     }
 
+
     static #getPartialTemplate(apartial: string) {
-        const partialBeginMkp = `${eTngMkpDict.BEGIN} ${eTngMkpDict.PARTIAL}("`;
-        const partialEndMkp = `") ${eTngMkpDict.END}`;
+        // <% partial("...") %>
+        const partialBeginMkp = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.PARTIAL}("`;
+        const partialEndMkp = `") ${eApgTngMkpDictionary.END}`;
 
         const partialName = apartial
             .replace(partialBeginMkp, "")
             .replace(partialEndMkp, "");
-        
-        const r = this._templatesPath + partialName;
+
+        const r = partialName.startsWith("http") ? partialName : this._templatesPath + partialName;
 
         return r;
     }
 
+
     static #getAncestorTemplate(ancestorMarkup: string) {
-        // TODO Change logic use substring insetead that replace
-        // -- APG 20220910
-        const extendsBeginMkp = `${eTngMkpDict.BEGIN} ${eTngMkpDict.EXTENDS}("`;
-        const extendsEndMkp = `") ${eTngMkpDict.END}`;
+        // <% extends("...") %>
+        const extendsBeginMkp = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.EXTENDS}("`;
+        const extendsEndMkp = `") ${eApgTngMkpDictionary.END}`;
 
         const ancestorViewName = ancestorMarkup
             .replace(extendsBeginMkp, "")
@@ -252,6 +271,7 @@ export class ApgTngService {
 
         return r;
     }
+
 
     static async #getTemplateFile(atemplate: string, auseCache: boolean) {
 
@@ -264,26 +284,100 @@ export class ApgTngService {
         }
         else {
 
-            let templateContent = ""
+            let templateContent = "";
             try {
-                templateContent = await Deno.readTextFile(atemplate);
+
+                if (atemplate.startsWith("http")) {
+                    const response = await fetch(atemplate);
+                    templateContent = await response.text();
+                }
+                else {
+                    templateContent = await Deno.readTextFile(atemplate);
+                }
+
+                templateContent = this.#scanTemplateContentForSchemaAndExample(atemplate, templateContent);
+
             } catch (e) {
-                console.error(e)
-                throw e;
+                const message = e.message + "{" + atemplate + "}";
+                throw new Error(message);
             }
-            // CHECK Could be redundant in some cases if we overwite the cache. 
-            // Or we waste memory since cache wont be used
-            // -- APG 20220802
+            // save to the cache anyway
             this._filesCache.set(atemplate, templateContent);
             return templateContent;
         }
 
     }
 
+
+    static #scanTemplateContentForSchemaAndExample(aportionName: string, acontent: string) {
+        let r = this.#scanTemplateContentForExample(aportionName, acontent);
+        r = this.#scanTemplateContentForSchema(aportionName, r);
+        return r;
+    }
+
+
+    static #scanTemplateContentForExample(aportionName: string, acontent: string) {
+        // /<% example({...}) %>
+        const exampleBeginMkp = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.EXAMPLE}({`;
+        const exampleEndMkp = `}) ${eApgTngMkpDictionary.END}`;
+        let found = false;
+        let r = acontent;
+        do {
+            const i1 = r.indexOf(exampleBeginMkp);
+            if (i1 >= 0) {
+                const i2 = r.indexOf(exampleEndMkp, i1);
+                if (i2 > i1) {
+                    const begin = i1 + exampleBeginMkp.length - 1;
+                    const end = i2 + 1;
+                    const example = r.substring(begin, end);
+                    this._deliverableDataExamples.set(aportionName, example);
+                    const _e = JSON.parse(example);
+                    r = r.substring(0, i1) + r.substring(i2 + exampleEndMkp.length, r.length);
+                    found = true;
+                }
+            }
+            else {
+                found = false;
+            }
+        } while (found == true);
+
+        return r;
+    }
+
+
+    static #scanTemplateContentForSchema(aportionName: string, acontent: string) {
+        // <% schema({...}) %>
+        const schemaBeginMkp = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.SCHEMA}({`;
+        const eschemaEndMkp = `}) ${eApgTngMkpDictionary.END}`;
+        let found = false;
+        let r = acontent;
+        do {
+            const i1 = r.indexOf(schemaBeginMkp);
+            if (i1 >= 0) {
+                const i2 = r.indexOf(eschemaEndMkp, i1);
+                if (i2 > i1) {
+                    const begin = i1 + schemaBeginMkp.length - 1;
+                    const end = i2 + 1;
+                    const schema = r.substring(begin, end);
+                    this._portionsSchemas.set(aportionName, schema);
+                    const _s = JSON.parse(schema);
+                    r = r.substring(0, i1) + r.substring(i2 + eschemaEndMkp.length, r.length);
+                    found = true;
+                }
+            }
+            else {
+                found = false;
+            }
+        } while (found == true);
+
+        return r;
+    }
+
+
     static #convertTemplateInJs(atemplateHtml: string) {
         const r: string[] = [];
 
-        const firstSplitChunks = atemplateHtml.split(eTngMkpDict.BEGIN);
+        const firstSplitChunks = atemplateHtml.split(eApgTngMkpDictionary.BEGIN);
         let first = true;
         for (const chunk of firstSplitChunks) {
             if (first) {
@@ -291,18 +385,25 @@ export class ApgTngService {
                 first = false;
             }
             else {
-                const secondSplitChunks = chunk.split(eTngMkpDict.END);
-                r.push(this.#convertJsChunkToJs(secondSplitChunks[0])); // js
-                r.push(this.#convertHtmlChunkToJs(secondSplitChunks[1])); // html
+                const secondSplitChunks = chunk.split(eApgTngMkpDictionary.END);
+
+                const jsChunk = secondSplitChunks[0].trim();
+                const convertedJsChunk = this.#convertJsChunkToJs(jsChunk);
+                r.push(convertedJsChunk);
+
+                const htmlChunk = secondSplitChunks[1].trim();
+                const convertedHtmlChunk = this.#convertHtmlChunkToJs(htmlChunk);
+                r.push(convertedHtmlChunk);
             }
         }
         return r;
     }
 
+
     static #convertJsChunkToJs(achunk: string) {
         let r = "";
-        const supportedJsKeywordsAndSymbolsRegex = /(^( )?(let|const|if|else|switch|case|break|for|do|while|{|}|;))(.*)?/g;
-        r = (achunk.match(supportedJsKeywordsAndSymbolsRegex)) ?
+        const jsKeywordsAndSymbolsRegex = /(^( )?(var|let|const|=|if|else|switch|case|break|for|do|while|{|}|;))(.*)?/g;
+        r = (achunk.match(jsKeywordsAndSymbolsRegex)) ?
             // we expect supported js code, so insert js chunk as is
             achunk :
             // instead insert as value automatically converted in string by interpolation
@@ -310,14 +411,20 @@ export class ApgTngService {
         return r;
     }
 
+
     static #convertHtmlChunkToJs(achunk: string) {
         let r = "";
-
-        if (this._options.useCache && achunk.length > this._options.cacheChunksLongerThan!) {
-            const chunkHash = this.#brycHash(achunk);
+        let chunkHash = 0;
+        /** Store in cache anyway if larger that specified size */
+        if (achunk.length > this._options.cacheChunksLongerThan!) {
+            chunkHash = this.#brycHash(achunk);
             if (!this._chunksCache.has(chunkHash)) {
                 this._chunksCache.set(chunkHash, achunk)
             }
+        }
+
+        if (this._options.useCache) {
+
             // Insert html chunk as reference to the chunks Cache
             r = `r.push(this.#getChunk(${chunkHash}))`;
         }
@@ -328,6 +435,7 @@ export class ApgTngService {
 
         return r;
     }
+
 
     static #handleJSError(aerr: Error, atemplate: string, ajs: string) {
         const notDefIndex = (<string>aerr.message).indexOf(" is not defined");
@@ -368,6 +476,7 @@ export class ApgTngService {
         return r;
     }
 
+
     static #brycHash(astr: string, aseed = 0) {
 
         let h1 = 0xdeadbeef ^ aseed;
@@ -384,6 +493,69 @@ export class ApgTngService {
 
     }
 
-}
 
+    static async RenderDeliverableExample(adeliverable: string) {
+        let r = "";
+
+        const exampleData = this._deliverableDataExamples.get(adeliverable);
+        if (exampleData == undefined) {
+            r = "The example data for a demonstrative use of the " + adeliverable + " is not available!"
+        }
+        else {
+            const jsonData = JSON.parse(exampleData);
+            r = await this.Render(adeliverable, jsonData);
+        }
+
+        return r;
+
+    }
+
+
+    static QueryCache(acacheID: number, acountOnly = true) {
+        let r: number |
+            (IterableIterator<[string, string]>) |
+            (IterableIterator<[string, TApgTngTemplateFunction]>) |
+            (IterableIterator<[number, string]>) = 0;
+        if (acountOnly) {
+            switch (acacheID) {
+                case 1:
+                    r = this._filesCache.size;
+                    break;
+                case 2:
+                    r = this._functionsCache.size;
+                    break;
+                case 3:
+                    r = this._chunksCache.size;
+                    break;
+                case 4:
+                    r = this._deliverableDataExamples.size;
+                    break;
+                case 5:
+                    r = this._portionsSchemas.size;
+                    break;
+            }
+        }
+        else {
+            switch (acacheID) {
+                case 1:
+                    r = this._filesCache.entries();
+                    break;
+                case 2:
+                    r = this._functionsCache.entries();
+                    break;
+                case 3:
+                    r = this._chunksCache.entries();
+                    break;
+                case 4:
+                    r = this._deliverableDataExamples.entries();
+                    break;
+                case 5:
+                    r = this._portionsSchemas.entries();
+                    break;
+            }
+        }
+        return r;
+
+    }
+}
 

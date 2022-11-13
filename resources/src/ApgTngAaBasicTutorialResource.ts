@@ -10,7 +10,7 @@ import { ApgTngExamplesData } from "../data/ApgTngExamplesData.ts";
 
 export class ApgTngAaBasicTutorialResource extends Drash.Resource {
 
-    public paths = ["/basic/tutorial"];
+    public override paths = ["/basic/tutorial"];
 
     public async GET(_request: Drash.Request, response: Drash.Response) {
 
