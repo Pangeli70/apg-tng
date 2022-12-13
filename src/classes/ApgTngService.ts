@@ -23,6 +23,9 @@ export class ApgTngService {
     private static _beginMkp: string = eApgTngMkpDictionary.BEGIN;
     private static _endMkp: string = eApgTngMkpDictionary.END;
 
+    private static _beginRegexMkp: string = this.#regexConverter(this._beginMkp);
+    private static _endRegexMkp: string = this.#regexConverter(this._endMkp);
+
     // Master and partials files
     private static _filesCache: Map<string, string> = new Map();
     // Html chunks hash Cache
@@ -83,9 +86,11 @@ export class ApgTngService {
             }
             if (aoptions.beginMarkup) { 
                 this._beginMkp = aoptions.beginMarkup;
+                this._beginRegexMkp = this.#regexConverter(this._beginMkp);
             }
             if (aoptions.endMarkup) { 
                 this._endMkp = aoptions.endMarkup;
+                this._endRegexMkp = this.#regexConverter(this._endMkp);
             }
         }
 
@@ -163,6 +168,25 @@ export class ApgTngService {
         return result;
     }
 
+    static #regexConverter(astring: string) { 
+        let r = astring;
+        r = r.replaceAll("(", "\\(");
+        r = r.replaceAll(")", "\\)");
+        r = r.replaceAll("[", "\\[");
+        r = r.replaceAll("]", "\\]");
+        r = r.replaceAll("{", "\\{");
+        r = r.replaceAll("{", "\\}");
+        r = r.replaceAll("{", "\\}");
+        r = r.replaceAll("|", "\\|");
+        r = r.replaceAll("$", "\\$");
+        r = r.replaceAll("^", "\\^");
+        r = r.replaceAll("?", "\\?");
+        r = r.replaceAll("*", "\\*");
+        r = r.replaceAll("+", "\\+");
+        r = r.replaceAll(".", "\\.");
+        return r;
+    }
+
 
     static async #getTemplateAsJavascript(atemplate: string, auseCache: boolean) {
 
@@ -189,9 +213,9 @@ export class ApgTngService {
         let templateHtml: string = await this.#getTemplateFile(atemplate, auseCache);
 
         // Check if the template extends another template typically a master page
-        // /<% extends("...") %>
+        // <% extends("...") %>
         const ancestorRegExpMkp =
-            `${this._beginMkp} ${eApgTngMkpDictionary.EXTENDS}\\(\\".*\\"\\) ${this._endMkp}`
+            `${this._beginRegexMkp} ${eApgTngMkpDictionary.EXTENDS}\\(\\".*\\"\\) ${this._endRegexMkp}`
         const ancestorRegExp = new RegExp(ancestorRegExpMkp, "g")
         const ancestorMatches = templateHtml.match(ancestorRegExp);
         if (ancestorMatches) {
@@ -202,7 +226,7 @@ export class ApgTngService {
         // Check recursively for nested partials
         // <% partial("...") %>
         const partialRegExpMkp =
-            `${this._beginMkp} ${eApgTngMkpDictionary.PARTIAL}\\(\\".*\\"\\) ${this._endMkp}`;
+            `${this._beginRegexMkp} ${eApgTngMkpDictionary.PARTIAL}\\(\\".*\\"\\) ${this._endRegexMkp}`;
         const partialRegExp = new RegExp(partialRegExpMkp, "g")
 
         // since we can have nested sub partials we need a loop for Regex match
