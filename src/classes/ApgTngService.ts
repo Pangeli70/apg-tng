@@ -3,7 +3,8 @@
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.9.0 [APG 2022/09/11] Beta
  * @version 0.9.2 [APG 2022/10/31] Deliverables portions
- * @version 0.9.3 [APG 2022/11/05] Host
+ * @version 0.9.3 [APG 2022/11/05] Remote Host
+ * @version 0.9.4 [APG 2022/12/13] Configurable markup
  * ------------------------------------------------------------------------
  */
 import { StdPath } from "../../deps.ts";
@@ -19,7 +20,8 @@ export class ApgTngService {
 
     // Class Name
     static readonly CLASS_NAME = "ApgTngService";
-
+    private static _beginMkp: string = eApgTngMkpDictionary.BEGIN;
+    private static _endMkp: string = eApgTngMkpDictionary.END;
 
     // Master and partials files
     private static _filesCache: Map<string, string> = new Map();
@@ -78,6 +80,12 @@ export class ApgTngService {
             }
             if (aoptions.deliverablesPath) {
                 this._options.deliverablesPath = aoptions.deliverablesPath;
+            }
+            if (aoptions.beginMarkup) { 
+                this._beginMkp = aoptions.beginMarkup;
+            }
+            if (aoptions.endMarkup) { 
+                this._endMkp = aoptions.endMarkup;
             }
         }
 
@@ -183,7 +191,7 @@ export class ApgTngService {
         // Check if the template extends another template typically a master page
         // /<% extends("...") %>
         const ancestorRegExpMkp =
-            `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.EXTENDS}\\(\\".*\\"\\) ${eApgTngMkpDictionary.END}`
+            `${this._beginMkp} ${eApgTngMkpDictionary.EXTENDS}\\(\\".*\\"\\) ${this._endMkp}`
         const ancestorRegExp = new RegExp(ancestorRegExpMkp, "g")
         const ancestorMatches = templateHtml.match(ancestorRegExp);
         if (ancestorMatches) {
@@ -194,7 +202,7 @@ export class ApgTngService {
         // Check recursively for nested partials
         // <% partial("...") %>
         const partialRegExpMkp =
-            `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.PARTIAL}\\(\\".*\\"\\) ${eApgTngMkpDictionary.END}`;
+            `${this._beginMkp} ${eApgTngMkpDictionary.PARTIAL}\\(\\".*\\"\\) ${this._endMkp}`;
         const partialRegExp = new RegExp(partialRegExpMkp, "g")
 
         // since we can have nested sub partials we need a loop for Regex match
@@ -237,7 +245,7 @@ export class ApgTngService {
             const strippedHtml = atemplateHtml.replace(ancestorMarkup, "");
 
             // insert the current template in the ancestor's one
-            const yeldMarkup = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.YIELD} ${eApgTngMkpDictionary.END}`;
+            const yeldMarkup = `${this._beginMkp} ${eApgTngMkpDictionary.YIELD} ${this._endMkp}`;
             r = ancestorHtml.replace(yeldMarkup, strippedHtml);
         }
         return r;
@@ -246,8 +254,8 @@ export class ApgTngService {
 
     static #getPartialTemplate(apartial: string) {
         // <% partial("...") %>
-        const partialBeginMkp = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.PARTIAL}("`;
-        const partialEndMkp = `") ${eApgTngMkpDictionary.END}`;
+        const partialBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.PARTIAL}("`;
+        const partialEndMkp = `") ${this._endMkp}`;
 
         const partialName = apartial
             .replace(partialBeginMkp, "")
@@ -261,8 +269,8 @@ export class ApgTngService {
 
     static #getAncestorTemplate(ancestorMarkup: string) {
         // <% extends("...") %>
-        const extendsBeginMkp = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.EXTENDS}("`;
-        const extendsEndMkp = `") ${eApgTngMkpDictionary.END}`;
+        const extendsBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.EXTENDS}("`;
+        const extendsEndMkp = `") ${this._endMkp}`;
 
         const ancestorViewName = ancestorMarkup
             .replace(extendsBeginMkp, "")
@@ -318,8 +326,8 @@ export class ApgTngService {
 
     static #scanTemplateContentForExample(aportionName: string, acontent: string) {
         // /<% example({...}) %>
-        const exampleBeginMkp = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.EXAMPLE}({`;
-        const exampleEndMkp = `}) ${eApgTngMkpDictionary.END}`;
+        const exampleBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.EXAMPLE}({`;
+        const exampleEndMkp = `}) ${this._endMkp}`;
         let found = false;
         let r = acontent;
         do {
@@ -347,8 +355,8 @@ export class ApgTngService {
 
     static #scanTemplateContentForSchema(aportionName: string, acontent: string) {
         // <% schema({...}) %>
-        const schemaBeginMkp = `${eApgTngMkpDictionary.BEGIN} ${eApgTngMkpDictionary.SCHEMA}({`;
-        const eschemaEndMkp = `}) ${eApgTngMkpDictionary.END}`;
+        const schemaBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.SCHEMA}({`;
+        const eschemaEndMkp = `}) ${this._endMkp}`;
         let found = false;
         let r = acontent;
         do {
@@ -377,7 +385,7 @@ export class ApgTngService {
     static #convertTemplateInJs(atemplateHtml: string) {
         const r: string[] = [];
 
-        const firstSplitChunks = atemplateHtml.split(eApgTngMkpDictionary.BEGIN);
+        const firstSplitChunks = atemplateHtml.split(this._beginMkp);
         let first = true;
         for (const chunk of firstSplitChunks) {
             if (first) {
@@ -385,7 +393,7 @@ export class ApgTngService {
                 first = false;
             }
             else {
-                const secondSplitChunks = chunk.split(eApgTngMkpDictionary.END);
+                const secondSplitChunks = chunk.split(this._endMkp);
 
                 const jsChunk = secondSplitChunks[0].trim();
                 const convertedJsChunk = this.#convertJsChunkToJs(jsChunk);
@@ -402,12 +410,14 @@ export class ApgTngService {
 
     static #convertJsChunkToJs(achunk: string) {
         let r = "";
-        const jsKeywordsAndSymbolsRegex = /(^( )?(var|let|const|=|if|else|switch|case|break|for|do|while|{|}|;))(.*)?/g;
-        r = (achunk.match(jsKeywordsAndSymbolsRegex)) ?
+        const chunk = achunk.replaceAll("\r\n", "").trim();
+        const jsKeywordsAndSymbolsRegex =
+            /(^( )?(function|var|let|const|=|if|else|switch|case|break|for|do|while|{|}|;))(.*)?/g;
+        r = (chunk.match(jsKeywordsAndSymbolsRegex)) ?
             // we expect supported js code, so insert js chunk as is
-            achunk :
+            chunk :
             // instead insert as value automatically converted in string by interpolation
-            `r.push(${achunk});`
+            `r.push(${chunk});`
         return r;
     }
 
