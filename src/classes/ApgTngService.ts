@@ -84,11 +84,11 @@ export class ApgTngService {
             if (aoptions.deliverablesPath) {
                 this._options.deliverablesPath = aoptions.deliverablesPath;
             }
-            if (aoptions.beginMarkup) { 
+            if (aoptions.beginMarkup) {
                 this._beginMkp = aoptions.beginMarkup;
                 this._beginRegexMkp = this.#regexConverter(this._beginMkp);
             }
-            if (aoptions.endMarkup) { 
+            if (aoptions.endMarkup) {
                 this._endMkp = aoptions.endMarkup;
                 this._endRegexMkp = this.#regexConverter(this._endMkp);
             }
@@ -140,14 +140,14 @@ export class ApgTngService {
                 console.log(`${this.CLASS_NAME}: function for template ${template} retrieved from cache!`);
         }
         else {
-            const js = await this.#getTemplateAsJavascript(template, useCache);
+            const jsCode = await this.#getTemplateAsJavascript(template, useCache);
             try {
-                templateFunction = new Function("templateData", js) as TApgTngTemplateFunction;
+                templateFunction = new Function("templateData", jsCode) as TApgTngTemplateFunction;
                 weHaveNewFunctionToStoreInCache = true;
                 if (this._options.consoleLog)
                     console.log(`${this.CLASS_NAME}: function for template ${template} was built!`);
             } catch (err) {
-                return this.#handleJSError(err, template, js);
+                return this.#handleJSError(err, template, jsCode);
             }
         }
 
@@ -163,12 +163,12 @@ export class ApgTngService {
                 }
             }
         } catch (err) {
-            result = this.#handleJSError(err, template, templateFunction!.toString());
+            result = this.#handleJSError(err, template, templateFunction!);
         }
         return result;
     }
 
-    static #regexConverter(astring: string) { 
+    static #regexConverter(astring: string) {
         let r = astring;
         r = r.replaceAll("(", "\\(");
         r = r.replaceAll(")", "\\)");
@@ -435,6 +435,9 @@ export class ApgTngService {
     static #convertJsChunkToJs(achunk: string) {
         let r = "";
         const chunk = achunk.replaceAll("\r\n", "").trim();
+        if (chunk == "") {
+            return r;
+        }
         const jsKeywordsAndSymbolsRegex =
             /(^( )?(function|var|let|const|=|if|else|switch|case|break|for|do|while|{|}|;))(.*)?/g;
         r = (chunk.match(jsKeywordsAndSymbolsRegex)) ?
@@ -448,6 +451,10 @@ export class ApgTngService {
 
     static #convertHtmlChunkToJs(achunk: string) {
         let r = "";
+        const chunk = achunk.replaceAll("\r\n", "").trim();
+        if (chunk == "") {
+            return r;
+        }
         let chunkHash = 0;
         /** Store in cache anyway if larger that specified size */
         if (achunk.length > this._options.cacheChunksLongerThan!) {
@@ -471,23 +478,35 @@ export class ApgTngService {
     }
 
 
-    static #handleJSError(aerr: Error, atemplate: string, ajs: string) {
-        const notDefIndex = (<string>aerr.message).indexOf(" is not defined");
+    static #handleJSError(
+        aerror: Error,
+        atemplateName: string,
+        atemplateFunction: TApgTngTemplateFunction | string
+    ) {
+        console.error(`${this.CLASS_NAME} Error: ${aerror.message}`);
 
-        console.error(`${this.CLASS_NAME} Error: ${aerr.message}`);
-        let printableJS = ajs
+
+
+        const notDefIndex = (<string>aerror.message).indexOf(" is not defined");
+
+        const errorType = (typeof (atemplateFunction) == "string") ?
+            "Template conversion" :
+            "Template interpolation";
+
+        let printableJS = (typeof (atemplateFunction) == "string") ?
+            `function rawJavascript (templateData){\n${atemplateFunction}\n}`  :
+            `function compiledJavascript (templateData){\n${atemplateFunction.toString()}\n}`;
+        printableJS
             .replaceAll(">", "&gt")
             .replaceAll("<", "&lt")
             .replaceAll("%", "&amp");
 
         // Highlight recognized errors
         if (notDefIndex != -1) {
-            const missingItem = (<string>aerr.message).substring(0, notDefIndex);
+            const missingItem = (<string>aerror.message).substring(0, notDefIndex);
             const missingmarkup = `<span style="color:red"><b>${missingItem}</b></span>`;
             printableJS = printableJS.replaceAll(missingItem, missingmarkup);
         }
-
-        // printableJS = `function anonymous (templateData){\n${printableJS}\n}`;
 
         const r = `
         <!doctype html>
@@ -497,9 +516,9 @@ export class ApgTngService {
                 <title>ERROR</title>
             </head>
             <body style="margin-left:20%; margin-right:20%; font-family: 'Segoe UI', 'Verdana';">
-                <h1>${this.CLASS_NAME} Error!</h1>
-                <h2>In the template: ${atemplate}</h2>
-                <h3 style="color:red;">${aerr.message}</h3>
+                <h1>${this.CLASS_NAME} Error! ${errorType}</h1>
+                <h2>In the template: ${atemplateName}</h2>
+                <h3 style="color:red;">${aerror.message}</h3>
                 <p>Cut and paste following code to a linter as potentially invalid javascript.</p>
                 <hr>
                 <pre style="font-family: 'Lucida console','Courier new'">${printableJS}</pre>

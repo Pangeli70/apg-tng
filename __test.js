@@ -1,15 +1,17 @@
-function t (templateData) {
-  const r = [];
-  r.push(`<!DOCTYPE html>
+// deno-lint-ignore-file no-with
+function t() {
+  with (templateData) {
+    const r = [];
+    r.push(`<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <title>
     `);
-  r.push(site.name);
-  r.push(`:`);
-  r.push(page.title);
-  r.push(`</title>
+    r.push(site.name);
+    r.push(`:`);
+    r.push(page.title);
+    r.push(`</title>
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
@@ -19,8 +21,8 @@ function t (templateData) {
   <meta name="generator" content="Deno+Drash" />
   <meta name="keywords" content="Deno, Drash, APG, Angeli Paolo Giusto, Paolo Angeli" />
   <meta name="application-name" content="`);
-  r.push(site.name);
-  r.push(`" />
+    r.push(site.name);
+    r.push(`" />
 
   <!-- Favicon -->
   <link rel="shortcut icon" type="image/x-icon" href="https://apg-cdn.deno.dev/public/img/ico/Apg-favicon-2022.ico" />
@@ -42,109 +44,107 @@ function t (templateData) {
           </td>
           <td>
             <h2 style="margin-bottom: 0px">`);
-  r.push(site.name);
-  r.push(`<br>
+    r.push(site.name);
+    r.push(`<br>
               <span style="font-size: 50&">`);
-  r.push(site.title);
-  r.push(`</span>
+    r.push(site.title);
+    r.push(`</span>
             </h2>
           </td>
         </tr>
       </table>
     </section>`);
-  if (page.toolbar) {
-    r.push(`<section id="bar" style="text-align: center;">`);
-    r.push(page.toolbar);
-    r.push(`<hr>
+    if (page.toolbar) {
+      r.push(`<section id="bar" style="text-align: center;">`);
+      r.push(page.toolbar);
+      r.push(`<hr>
       </section>`);
-  }
-  r.push(`<h1 class="apg-page-title">`);
-  r.push(page.title);
-  r.push(`</h1>
+    }
+    r.push(`<h1 class="apg-page-title">`);
+    r.push(page.title);
+    r.push(`</h1>
 
   </header>
 
   <main style="padding: 0">`);
-  switch (mode) {
-r.push(``);
-case "undefined": {
-    r.push(`<h2>ERROR! The querystring parameter`);
-    r.push(rawMode);
-    r.push(`is invalid.</h2>`);
-    break;
-  }
-  r.push(``);
-case "menu": {
-    r.push(``);
-    for (const link of links) {
-      r.push(`<p>
+    switch (mode) {
+
+      case "undefined": {
+        r.push(`<h2>ERROR! The querystring parameter`);
+        r.push(rawMode);
+        r.push(`is invalid.</h2>`);
+        break;
+      }
+
+      case "menu": {
+        r.push(``);
+        for (const link of links) {
+          r.push(`<p>
       <a href="`);
-      r.push(link.href);
-      r.push(`">`);
-      r.push(link.caption);
-      r.push(`</a>
+          r.push(link.href);
+          r.push(`">`);
+          r.push(link.caption);
+          r.push(`</a>
     </p>`);
-    }
-    r.push(``);
-    break;
-  }
-  r.push(``);
-case "files": {
-    r.push(``);
-    for (const file of files) {
-      r.push(`<details>
+        }
+        r.push(``);
+        break;
+      }
+
+      case "files": {
+        r.push(``);
+        for (const file of files) {
+          r.push(`<details>
       <summary>
         <h3>`);
-      r.push(file.key);
-      r.push(`</h3>
+          r.push(file.key);
+          r.push(`</h3>
       </summary>
       <pre><code>`);
-      r.push(file.content);
-      r.push(`</code></pre>
+          r.push(file.content);
+          r.push(`</code></pre>
     </details>`);
-    }
-    r.push(``);
-    break;
-  }
-  r.push(``);
-case "functions": {
-    r.push(``);
-    for (const function of functions) {
-      r.push(`<details>
+        }
+        r.push(``);
+        break;
+      }
+      case "functions": {
+        r.push(``);
+        for (const func of functions) {
+          r.push(`<details>
       <summary>
         <h3>`);
-      r.push(function.key);
-      r.push(`</h3>
+          r.push(func.key);
+          r.push(`</h3>
       </summary>
       <pre><code>`);
-      r.push(function.content);
-      r.push(`</code></pre>
+          r.push(func.content);
+          r.push(`</code></pre>
     </details>`);
-    }
-    r.push(``);
-    break;
-  }
-  r.push(``);
-case "chunks": {
-    r.push(``);
-    for (const chunk of chunks) {
-      r.push(`<details>
+        }
+        r.push(``);
+        break;
+      }
+        r.push(``);
+      case "chunks": {
+        r.push(``);
+        for (const chunk of chunks) {
+          r.push(`<details>
       <summary>
         <h3>`);
-      r.push(chunk.key);
-      r.push(`</h3>
+          r.push(chunk.key);
+          r.push(`</h3>
       </summary>
       <pre><code>`);
-      r.push(chunk.content);
-      r.push(`</code></pre>
+          r.push(chunk.content);
+          r.push(`</code></pre>
     </details>`);
+        }
+        r.push(``);
+        break;
+      }
     }
-    r.push(``);
-    break;
-  }
-  r.push(``);
-}
-r.push(`</main>
+    r.push(`</main>
 
   <footer style="padding: 0">
     <hr />
@@ -158,13 +158,14 @@ r.push(`</main>
           <a href="https://www.picocss.com/" target="_blank">Pico Css</a><br />
           SSR HTML made with APG-TNG.<br />
           Page released:`);
-r.push(page.released);
-r.push(`</em>
+    r.push(page.released);
+    r.push(`</em>
       </p>
     </section>
   </footer>
 </body>
 
 </html>`);
-return r.join("");
+    return r.join("");
+  }
 }
