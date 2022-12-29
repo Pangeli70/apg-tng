@@ -1,43 +1,37 @@
-<%
-const pico_page_footer = JSON.parse(`{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-   "type": "object",
-   "properties": {
-      "githubProjectPage": {
-         "type": "string"
-      },
-      "pageReleaseDate": {
-         "type": "string"
-      }
-   },
-   "required": [
-   "pageReleaseDate"
-   ]
-}
-`)
-%>
+<pre hidden>
+[: schema({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "githubProjectPage": {
+          "type": "string"
+        },
+        "pageReleaseDate": {
+          "type": "string"
+        }
+    },
+    "required": [
+    "pageReleaseDate"
+    ]
+  }) :]
+</pre>
 
-
-<section id="footer"
-         style="padding: 0; margin: 2em, 0, 0, 0">
-    <p style="text-align: center; font-size: 0.5em">
-        <em>
-            © 2017-2022 APG: free man angeli paolo giusto.<br />
-            Made with &#10084; using
-            <a href="https://deno.land/"
-               target="_blank">Deno</a>,
-            <a href="https://drash.land/"
-               target="_blank"> Drash</a>,
-            <a href="https://www.picocss.com/"
-               target="_blank">Pico Css</a><br />
-            <% if ( githubProjectPage ) { %>
-               <a href="https://github.com/<% githubProjectPage %>"
-               target="_blank"><img
-               src="https://github.githubassets.com/favicons/favicon.png"
-               style="width: 2em">Github</a><br>
-            <% } %>
-            Page was Server Side Rendered using <a href="https://github.com/Pangeli70/apg-tng" target="_blank">APG-TNG</a>.<br />
-            Page released: <% pageReleaseDate %>
-        </em>
-    </p>
+<section id="footer" style="padding: 0; margin: 2em, 0, 0, 0">
+  <p style="text-align: center; font-size: 0.5em">
+    <em>
+      © 2017-2022 APG: free man angeli paolo giusto.<br />
+      Made with &#10084; using
+      <a href="https://deno.land/" target="_blank">Deno</a>,
+      <a href="https://drash.land/" target="_blank"> Drash</a>,
+      <a href="https://www.picocss.com/" target="_blank">Pico Css</a><br />
+      [: if ( githubProjectPage ) { :]
+      <a href="https://github.com/[: githubProjectPage :]" target="_blank"><img
+             src="https://github.githubassets.com/favicons/favicon.png"
+             style="width: 2em">Github</a><br>
+      [: } :]
+      Page was Server Side Rendered using 
+      <a href="https://apg-tng.deno.dev/" target="_blank">Apg-TNG</a><br />
+      Page released: [: pageReleaseDate :]
+    </em>
+  </p>
 </section>

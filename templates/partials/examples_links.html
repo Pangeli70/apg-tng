@@ -10,25 +10,24 @@
       Tutorial
     </td>
   </tr>
-  <% for (const link of links) { %>
-    <tr>
-      <td>
-        <h3>
-          <% link.caption
-             %>
-        </h3>
-      </td>
-      <td style="text-align: center;">
-        <a href="<% link.href %>">
-          <img src="https://cdn-icons-png.flaticon.com/32/5656/5656148.png">
-        </a>
-      </td>
-      <td style="text-align: center;">
-        <a href="<% link.href %>/tutorial">
-          <img src="https://cdn-icons-png.flaticon.com/32/5339/5339947.png">
-        </a>
-      </td>
-    </tr>
+  [: for (const link of links) { :]
+  <tr>
+    <td>
+      <h3>
+        [: link.caption :]
+      </h3>
+    </td>
+    <td style="text-align: center;">
+      <a href="[: link.href :]">
+        <img src="https://cdn-icons-png.flaticon.com/32/5656/5656148.png">
+      </a>
+    </td>
+    <td style="text-align: center;">
+      <a href="[: link.href :]/tutorial">
+        <img src="https://cdn-icons-png.flaticon.com/32/5339/5339947.png">
+      </a>
+    </td>
+  </tr>
 
-    <% } %>
+  [: } :]
 </table>

@@ -1,45 +1,44 @@
-<%
-const pico_h2_toolbar = JSON.parse(`{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "properties": {
-    "links": {
-      "type": "array",
-      "items": [
-        {
-          "type": "object",
-          "properties": {
-            "href": {
-              "type": "string"
+<pre hidden>
+  [: schema({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "links": {
+        "type": "array",
+        "items": [
+          {
+            "type": "object",
+            "properties": {
+              "href": {
+                "type": "string"
+              },
+              "caption": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
             },
-            "caption": {
-              "type": "string"
-            },
-            "description": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "href",
-            "caption"
-          ]
-        }
-      ]
-    }
-  },
-  "required": [
-    "links"
-  ]
-}
-`)
-%>
+            "required": [
+              "href",
+              "caption"
+            ]
+          }
+        ]
+      }
+    },
+    "required": [
+      "links"
+    ]
+  }) :]
+</pre>
 
 <h2 style="text-align: center;">
-    <% for (const tool of toolbar) {%>
+  [: for (const tool of toolbar) { :]
 
-    <a href="<% tool.href %>" role="button" style="margin: 0.5rem;">
-        <% tool.caption %>
-    </a>
+  <a href="[: tool.href :]" role="button" style="margin: 0.5rem;">
+    [: tool.caption :]
+  </a>
 
-    <% } %>
+  [: } :]
 </h2>

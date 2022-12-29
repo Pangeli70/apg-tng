@@ -1,4 +1,4 @@
-<% extends("/master/pico.html") %>
+[: extends("/master/pico.html") :]
 
   <p>This tutorial is made with TNG !! &#129327;</p>
 
@@ -10,7 +10,7 @@
     <li>include a reusable "partial"</li>
   </ul>
   <pre>
-    <% tutorial.page %>
+    [: tutorial.page :]
   </pre>
 
   <hr>
@@ -22,7 +22,7 @@
     <li>use native javascript code inside the html template</li>
   </ul>
   <pre>
-    <% tutorial.partial %>
+    [: tutorial.partial :]
   </pre>
 
   <hr>
@@ -30,7 +30,7 @@
   <h3>Step 3: js data </h3>
   <p>The following js data is used to interpolate fields in html templates. </p>
   <pre>
-    <% tutorial.data %>
+    [: tutorial.data :]
   </pre>
 
   <hr>
@@ -38,7 +38,7 @@
   <h3>Step 4: Drash resource code </h3>
   <p>The following ts code is used to render the page template and interpolate the templateData.</p>
   <pre>
-    <% tutorial.resource %>
+    [: tutorial.resource :]
   </pre>
 
   <hr>
@@ -48,9 +48,9 @@
   <article>
     <div style="max-width: 640px; margin: 50px auto;">
       <h1>
-        Username: <% user.name %>
+        Username: [: user.name :]
       </h1>
-      <img src="<% user.image %>" style="width: 30%; float:left; margin-right: 2rem;">
-      <% partial("/partials/user_details.html") %>
+      <img src="[: user.image :]" style="width: 30%; float:left; margin-right: 2rem;">
+      [: partial("/partials/user_details.html") :]
     </div>
   </article>

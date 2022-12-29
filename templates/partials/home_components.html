@@ -1,0 +1,93 @@
+<details>
+  <summary>
+    <h2>Components</h2>
+  </summary>
+
+  <h4>Data validation before rendering</h4>
+  <p>To strengthen the use of the partials and deliverables, they can be paired with a JSON
+    schema of the template data expected. This allows to validate the data before rendering.
+  </p>
+  <p>
+    Moreover having a JSON schema defined for the deliverable it is possible to call the
+    <code>ApgTngService.RemoteRender()</code> method.
+  </p>
+  <p>
+    To define a JSON schema for the partial it is possible to use the following syntax:
+  </p>
+  <p>
+  <pre><code>
+      &lt;pre&gt;
+        &#91;: schema({
+          "$schema": "http://json-schema.org/draft-04/schema#",
+          "type": "object",
+          "properties": {
+            ...
+          },
+          "required": [
+            ...
+          ]
+        }) :&#93;
+      &lt;/pre&gt;
+    </code></pre>
+  </p>
+  <p>
+    To preserve formatting it is recommended to wrap the code inside
+    <code>&lt;pre hidden&gt;...&lt;/pre&gt;</code>
+    tags.
+  </p>
+  <h4>Usage examples</h4>
+  <p>
+    To help the usage of a deliveralbe it is possible to add a JSON data object to use as an example
+    and show the result with the <code>ApgTngService.RenderExample()</code> method.
+  </p>
+  <p>
+    To define an example for the partial it is possible to use the following syntax:
+  </p>
+  <p>
+  <pre><code>
+      &lt;pre&gt;
+        &#91;: example({
+          "links" : [
+              { "href": "", "caption":"", "description":"" },
+              { "href": "", "caption":"", "description":"" },
+              { "href": "", "caption":""}
+            ]
+          }) :&#93;
+      &lt;/pre&gt;
+    </code></pre>
+  </p>
+  <h4>Partial arguments</h4>
+  <p>To help the reuse of partials and deliverables it is possible to define arguments as an array
+    of object names instead than bind the template contant directly with the data object properties.
+  </p>
+  <p>The partial template will contain numbered placeholders corresponding to the indexes of the
+    array.
+    So having the following partial declaration <code> &#91;: partial("...", [a,b,c]):&#93;</code>,
+    the placeholders in the template <code> [#0], [#1], [#2] </code> will refer respectively to the
+    properties <code> a, b, c</code> of the template data object.
+  </p>
+  <p>
+    Combining JSON schema validation with examples and arguments it is possible to strenghten
+    the behaviour of a partial and consider it as a reusable component.
+  </p>
+  <p>
+    To define a type signature to the arguments it is possible to use the following syntax:
+  </p>
+  <p>
+  <pre><code>
+      &lt;pre&gt;
+        &#91;: arguments({
+          "#0": {
+            "title": "string",
+            "links": [
+              {
+              "href": "string",
+              "caption": "string"
+              }
+            ]
+          }
+        }) :&#93;
+      &lt;/pre&gt;
+      </code></pre>
+  </p>
+</details>

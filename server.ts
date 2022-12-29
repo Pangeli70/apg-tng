@@ -3,6 +3,7 @@
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.9.1 [APG 2022/09/11] Deno Deploy Beta
  * @version 0.9.2 [APG 2022/10/31] Deliverables
+ * @version 0.9.5 [APG 2022/12/29] Partial arguments and new markup
  * -----------------------------------------------------------------------
  */
 import { Drash, Uts, DotEnv } from "./deps.ts";
@@ -17,7 +18,7 @@ const SERVER_INFO: Uts.IApgUtsServerInfo = {
   localPort: 49601
 }
 
-const host = getHost(SERVER_INFO.localPort);
+const host = await getHost(SERVER_INFO.localPort);
 
 ApgTngService.Init("./templates", host, {
   useCache: false,
@@ -38,11 +39,11 @@ server.run();
 
 Uts.ApgUtsServer.StartupResume(SERVER_INFO);
 
-function getHost(alocalPort: number) {
+async function getHost(alocalPort: number) {
   const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") !== undefined;
   let r = "";
   if (isDenoDeploy) {
-    const env = DotEnv.config();
+    const env = await DotEnv.configAsync();
     if (env.HOST_NAME != undefined) {
       r = env.HOST_NAME
     }

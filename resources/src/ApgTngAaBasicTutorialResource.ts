@@ -21,27 +21,27 @@ export class ApgTngAaBasicTutorialResource extends Drash.Resource {
     </div>
     `
         const pageRawHtml = `
-    <% extends("/templates/pico_template.html") %>
+    [: extends("/templates/pico_template.html") :]
 
     <div style="max-width: 640px; margin: 50px auto;">
       <h1>
-        <% user.name %>
+        [: user.name :]
       </h1>
-      <img src="<% user.image %> style="width: 50%">
-      <% partial("/partials/user_details.html") %>
+      <img src="[: user.image :] style="width: 50%">
+      [: partial("/partials/user_details.html") :]
     </div>`
         const pageHtml = Uts.ApgUtsStr.EscapeHTML(pageRawHtml);
 
         const partialRawHtml = `
     <ul>
-    <% for (const fieldName in user.details) { %>
+    [: for (const fieldName in user.details) { :]
         <!-- Do not show the Password field -->
-        <% if (fieldName !=="password" ) { %>
+        [: if (fieldName !=="password" ) { :]
         <li>
-            <% fieldName %>: <% user.details[fieldName] %>
+            [: fieldName :]: [: user.details[fieldName] :]
         </li>
-        <% } %>
-    <% } %>
+        [: } :]
+    [: } :]
     </ul>`
         const partialHtml = Uts.ApgUtsStr.EscapeHTML(partialRawHtml);
 

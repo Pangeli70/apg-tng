@@ -11,7 +11,7 @@
     To get those remote potions, the page developer could specify the full URL
     to reach them on the remote server:
   <pre><code>
-      &lt;% partial("https://apg-tng.deno.dev/deliver/pico/pico_flex_page_menu.html") %&gt;
+      &#91; partial("https://apg-tng.deno.dev/deliver/pico/pico_flex_page_menu.html") &#93;
     </code></pre>
   </p>
   <p>
@@ -23,7 +23,7 @@
     It is possible to refer to remote deliverable portions in the markup
     using the <code>{Host}</code> syntax:
   <pre><code>
-      &lt;% partial("{Host}/deliver/pico/pico_flex_page_menu.html")%&gt;
+      &#91; partial("{Host}/deliver/pico/pico_flex_page_menu.html")&#93;
     </code></pre>
   Alternatively to get the remote deliverable portion it is possible to use the
   Host property directly in typescript code using the following syntax.
@@ -45,14 +45,5 @@
     See the <a href="/deliverable/frameworks">Deliverable framework</a> pages to
     explore the portions delivered by this website.
   </p>
-  <p>To strengthen the use of the deliverables, they can be paired with a JSON
-    schema of the template data expected to allow to the portion to render
-    correctly.
-  </p>
-  <p>
-    Having a JSON schema in the deliverable it is possible to call the RemoteRender method. 
-  </p>
-  <p>
-    Having a JSON Example data object in the deliverable it is possible to call the RenderExample method
-  </p>
+
 </details>

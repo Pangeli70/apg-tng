@@ -5,6 +5,7 @@
  * @version 0.9.2 [APG 2022/10/31] Deliverables portions
  * @version 0.9.3 [APG 2022/11/05] Remote Host
  * @version 0.9.4 [APG 2022/12/13] Configurable markup
+ * @version 0.9.5 [APG 2022/12/29] Partial arguments and new markup
  * ------------------------------------------------------------------------
  */
 import { StdPath } from "../../deps.ts";
@@ -23,6 +24,9 @@ export class ApgTngService {
     private static _beginMkp: string = eApgTngMkpDictionary.BEGIN;
     private static _endMkp: string = eApgTngMkpDictionary.END;
 
+    private static _beginArgMkp: string = eApgTngMkpDictionary.BEGIN_ARGS;
+    private static _endArgMkp: string = eApgTngMkpDictionary.END_ARGS;
+
     private static _beginRegexMkp: string = this.#regexConverter(this._beginMkp);
     private static _endRegexMkp: string = this.#regexConverter(this._endMkp);
 
@@ -34,14 +38,17 @@ export class ApgTngService {
     private static _functionsCache: Map<string, TApgTngTemplateFunction> = new Map();
 
     // Partials/Deliverables schemas in JSON format
-    private static _portionsSchemas: Map<string, string> = new Map();
+    private static _validationSchemas: Map<string, string> = new Map();
 
     // Partials/Deliverables examples in JSON format
-    private static _deliverableDataExamples: Map<string, string> = new Map();
+    private static _examples: Map<string, string> = new Map();
+
+    // Partials/Deliverables arguments in JSON format
+    private static _arguments: Map<string, string> = new Map();
 
     private static _templatesPath: string;
 
-    // TODO We still need to implement partial("{Host}/file.html")
+    // TODO @1 APG ... -- We still need to implement partial("{Host}/file.html")
     private static _host: string;
 
     private static _options: IApgTngServiceOptions = {
@@ -213,7 +220,7 @@ export class ApgTngService {
         let templateHtml: string = await this.#getTemplateFile(atemplate, auseCache);
 
         // Check if the template extends another template typically a master page
-        // <% extends("...") %>
+        // [: extends("...") :]
         const ancestorRegExpMkp =
             `${this._beginRegexMkp} ${eApgTngMkpDictionary.EXTENDS}\\(\\".*\\"\\) ${this._endRegexMkp}`
         const ancestorRegExp = new RegExp(ancestorRegExpMkp, "g")
@@ -224,9 +231,9 @@ export class ApgTngService {
         }
 
         // Check recursively for nested partials
-        // <% partial("...") %>
+        // [: partial("...") :]
         const partialRegExpMkp =
-            `${this._beginRegexMkp} ${eApgTngMkpDictionary.PARTIAL}\\(\\".*\\"\\) ${this._endRegexMkp}`;
+            `${this._beginRegexMkp} ${eApgTngMkpDictionary.PARTIAL}\\(\\".*\\".*\\) ${this._endRegexMkp}`;
         const partialRegExp = new RegExp(partialRegExpMkp, "g")
 
         // since we can have nested sub partials we need a loop for Regex match
@@ -247,8 +254,25 @@ export class ApgTngService {
         for (let i = 0; i < partials.length; i++) {
 
             const partial = partials[i];
-            const partialName = ApgTngService.#getPartialTemplate(partial);
-            const partialHtml = await this.#getTemplateFile(partialName, auseCache);
+            const partialRawParams = ApgTngService.#getPartialParams(partial);
+            const partialParams = partialRawParams.split(',');
+            let partialFile = partialParams[0].replaceAll('"', '').trim();
+            partialFile = partialFile.startsWith("http") ? partialFile : this._templatesPath + partialFile;
+            let partialHtml = await this.#getTemplateFile(partialFile, auseCache);
+
+            let partialArgs: string[] = [];
+            if (partialParams.length == 2) {
+                const argsLine = `${this._beginMkp} const args = ${partialParams[1].trim()} ${this._endMkp}\n`;
+                partialHtml = argsLine + partialHtml;
+                partialArgs = this.#getPartialArgs(partialParams[1]);
+            }
+            if (partialArgs.length > 0) {
+                for (let i = 0; i < partialArgs.length; i++) {
+                    const arg = partialArgs[i];
+                    const placeholder = "[#" + i.toString() + "]";
+                    partialHtml = partialHtml.replaceAll(placeholder, arg)
+                }
+            }
 
             //insert the partial html inside the template
             r = atemplateHtml.replace(partial, partialHtml);
@@ -276,23 +300,31 @@ export class ApgTngService {
     }
 
 
-    static #getPartialTemplate(apartial: string) {
-        // <% partial("...") %>
-        const partialBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.PARTIAL}("`;
-        const partialEndMkp = `") ${this._endMkp}`;
+    static #getPartialParams(apartial: string) {
+        // [: partial("...",[...]) :]
+        const partialBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.PARTIAL}(`;
+        const partialEndMkp = `) ${this._endMkp}`;
 
-        const partialName = apartial
+        const r = apartial
             .replace(partialBeginMkp, "")
             .replace(partialEndMkp, "");
+        return r;
+    }
 
-        const r = partialName.startsWith("http") ? partialName : this._templatesPath + partialName;
-
+    static #getPartialArgs(apartialArgs: string) {
+        // [: partial("...",[ a, b, c]) :]
+        const r = apartialArgs
+            .replace(this._beginArgMkp, "")
+            .replace(this._endArgMkp, "")
+            .trim()
+            .split(",")
+        r.forEach(a => a = a.trim());
         return r;
     }
 
 
     static #getAncestorTemplate(ancestorMarkup: string) {
-        // <% extends("...") %>
+        // [: extends("...") :]
         const extendsBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.EXTENDS}("`;
         const extendsEndMkp = `") ${this._endMkp}`;
 
@@ -327,7 +359,7 @@ export class ApgTngService {
                     templateContent = await Deno.readTextFile(atemplate);
                 }
 
-                templateContent = this.#scanTemplateContentForSchemaAndExample(atemplate, templateContent);
+                templateContent = this.#stripAndStoreAccessories(atemplate, templateContent);
 
             } catch (e) {
                 const message = e.message + "{" + atemplate + "}";
@@ -341,15 +373,16 @@ export class ApgTngService {
     }
 
 
-    static #scanTemplateContentForSchemaAndExample(aportionName: string, acontent: string) {
-        let r = this.#scanTemplateContentForExample(aportionName, acontent);
-        r = this.#scanTemplateContentForSchema(aportionName, r);
+    static #stripAndStoreAccessories(aportionName: string, acontent: string) {
+        let r = this.#stripAndStoreExample(aportionName, acontent);
+        r = this.#stripAndStoreSchema(aportionName, r);
+        r = this.#stripAndStoreArguments(aportionName, r);
         return r;
     }
 
 
-    static #scanTemplateContentForExample(aportionName: string, acontent: string) {
-        // /<% example({...}) %>
+    static #stripAndStoreExample(aportionName: string, acontent: string) {
+        // /[: example({...}) :]
         const exampleBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.EXAMPLE}({`;
         const exampleEndMkp = `}) ${this._endMkp}`;
         let found = false;
@@ -362,7 +395,7 @@ export class ApgTngService {
                     const begin = i1 + exampleBeginMkp.length - 1;
                     const end = i2 + 1;
                     const example = r.substring(begin, end);
-                    this._deliverableDataExamples.set(aportionName, example);
+                    this._examples.set(aportionName, example);
                     const _e = JSON.parse(example);
                     r = r.substring(0, i1) + r.substring(i2 + exampleEndMkp.length, r.length);
                     found = true;
@@ -377,8 +410,8 @@ export class ApgTngService {
     }
 
 
-    static #scanTemplateContentForSchema(aportionName: string, acontent: string) {
-        // <% schema({...}) %>
+    static #stripAndStoreSchema(aportionName: string, acontent: string) {
+        // [: schema({...}) :]
         const schemaBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.SCHEMA}({`;
         const eschemaEndMkp = `}) ${this._endMkp}`;
         let found = false;
@@ -391,9 +424,38 @@ export class ApgTngService {
                     const begin = i1 + schemaBeginMkp.length - 1;
                     const end = i2 + 1;
                     const schema = r.substring(begin, end);
-                    this._portionsSchemas.set(aportionName, schema);
+                    this._validationSchemas.set(aportionName, schema);
                     const _s = JSON.parse(schema);
                     r = r.substring(0, i1) + r.substring(i2 + eschemaEndMkp.length, r.length);
+                    found = true;
+                }
+            }
+            else {
+                found = false;
+            }
+        } while (found == true);
+
+        return r;
+    }
+
+    static #stripAndStoreArguments(aportionName: string, acontent: string) {
+        // [: arguments({...}) :]
+        const beginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.ARGUMENTS}({`;
+        const endMkp = `}) ${this._endMkp}`;
+        let found = false;
+        let r = acontent;
+        do {
+            const i1 = r.indexOf(beginMkp);
+            if (i1 >= 0) {
+                const i2 = r.indexOf(endMkp, i1);
+                if (i2 > i1) {
+                    const begin = i1 + beginMkp.length - 1;
+                    const end = i2 + 1;
+                    const content = r.substring(begin, end);
+                    // TODO @3 APG 20221229 -- This can throw!!! Manage this 
+                    const _s = JSON.parse(content);
+                    this._arguments.set(aportionName, content);
+                    r = r.substring(0, i1) + r.substring(i2 + endMkp.length, r.length);
                     found = true;
                 }
             }
@@ -485,8 +547,6 @@ export class ApgTngService {
     ) {
         console.error(`${this.CLASS_NAME} Error: ${aerror.message}`);
 
-
-
         const notDefIndex = (<string>aerror.message).indexOf(" is not defined");
 
         const errorType = (typeof (atemplateFunction) == "string") ?
@@ -494,9 +554,9 @@ export class ApgTngService {
             "Template interpolation";
 
         let printableJS = (typeof (atemplateFunction) == "string") ?
-            `function rawJavascript (templateData){\n${atemplateFunction}\n}`  :
+            `function rawJavascript (templateData){\n${atemplateFunction}\n}` :
             `function compiledJavascript (templateData){\n${atemplateFunction.toString()}\n}`;
-        printableJS
+        printableJS = printableJS
             .replaceAll(">", "&gt")
             .replaceAll("<", "&lt")
             .replaceAll("%", "&amp");
@@ -521,7 +581,7 @@ export class ApgTngService {
                 <h3 style="color:red;">${aerror.message}</h3>
                 <p>Cut and paste following code to a linter as potentially invalid javascript.</p>
                 <hr>
-                <pre style="font-family: 'Lucida console','Courier new'">${printableJS}</pre>
+                <pre style="font-family: 'Lucida console','Courier new'"><code>${printableJS}</code></pre>
             </body>
         </html>
         `;
@@ -550,7 +610,7 @@ export class ApgTngService {
     static async RenderDeliverableExample(adeliverable: string) {
         let r = "";
 
-        const exampleData = this._deliverableDataExamples.get(adeliverable);
+        const exampleData = this._examples.get(adeliverable);
         if (exampleData == undefined) {
             r = "The example data for a demonstrative use of the " + adeliverable + " is not available!"
         }
@@ -581,10 +641,10 @@ export class ApgTngService {
                     r = this._chunksCache.size;
                     break;
                 case 4:
-                    r = this._deliverableDataExamples.size;
+                    r = this._examples.size;
                     break;
                 case 5:
-                    r = this._portionsSchemas.size;
+                    r = this._validationSchemas.size;
                     break;
             }
         }
@@ -600,10 +660,10 @@ export class ApgTngService {
                     r = this._chunksCache.entries();
                     break;
                 case 4:
-                    r = this._deliverableDataExamples.entries();
+                    r = this._examples.entries();
                     break;
                 case 5:
-                    r = this._portionsSchemas.entries();
+                    r = this._validationSchemas.entries();
                     break;
             }
         }

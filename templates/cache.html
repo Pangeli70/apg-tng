@@ -1,88 +1,87 @@
-<% extends("/master/pico.html") %>
+[: extends("/master/pico.html") :]
 
 
-<% switch (mode) { 
-  case "undefined": { %>
-    <h2>ERROR! The querystring parameter <% rawMode %> is invalid.</h2>
-  <% break; 
-  }
-  case "menu": { %>
-    <% for (const link of links) { %>
-    <h4>
-      <a href="<% link.href %>">
-        <% link.caption %>
-      </a> 
-      <% if( link.items != ""){%>
-        (<% link.items %>)
-      <% } %>
-    </h4>
-    <% } %> 
-  <% break;
-  }
-  case "files": { %>
-    <% for (const file of files) { %>
-    <details>
-      <summary>
-        <h4><% file.key %></h4>
-      </summary>
-      <pre><code>
-        <% file.content %>
+[: switch (mode) {
+case "undefined": { :]
+<h2>ERROR! The querystring parameter [: rawMode :] is invalid.</h2>
+[: break;
+}
+case "menu": { :]
+[: for (const link of links) { :]
+<h4>
+  <a href="[: link.href :]">
+    [: link.caption :]
+  </a>
+  [: if( link.items != ""){ :]
+  ([: link.items :])
+  [: } :]
+</h4>
+[: } :]
+[: break;
+}
+case "files": { :]
+[: for (const file of files) { :]
+<details>
+  <summary>
+    <h4>[: file.key :]</h4>
+  </summary>
+  <pre><code>
+        [: file.content :]
       </code></pre>
-    </details>
-    <% } %>
-  <% break; 
-  } 
-  case "functions": { %>
-    <% for (const fn of functions) { %>
-    <details>
-      <summary>
-        <h4><% fn.key %></h4>
-      </summary>
-      <pre><code>
-        <% fn.content %>
+</details>
+[: } :]
+[: break;
+}
+case "functions": { :]
+[: for (const fn of functions) { :]
+<details>
+  <summary>
+    <h4>[: fn.key :]</h4>
+  </summary>
+  <pre><code>
+        [: fn.content :]
       </code></pre>
-    </details>
-    <% } %>
-  <% break; 
-  } 
-  case "chunks": { %>
-    <% for (const chunk of chunks) { %>
-    <details>
-      <summary>
-        <h4><% chunk.key %></h4>
-      </summary>
-      <pre><code>
-        <% chunk.content %>
+</details>
+[: } :]
+[: break;
+}
+case "chunks": { :]
+[: for (const chunk of chunks) { :]
+<details>
+  <summary>
+    <h4>[: chunk.key :]</h4>
+  </summary>
+  <pre><code>
+        [: chunk.content :]
       </code></pre>
-    </details>
-    <% } %> 
-  <% break; 
-  } 
-  case "examples": { %>
-    <% for (const example of examples) { %>
-    <details>
-      <summary>
-        <h4><% example.key %></h4>
-      </summary>
-      <pre><code>
-        <% example.content %>
+</details>
+[: } :]
+[: break;
+}
+case "examples": { :]
+[: for (const example of examples) { :]
+<details>
+  <summary>
+    <h4>[: example.key :]</h4>
+  </summary>
+  <pre><code>
+        [: example.content :]
       </code></pre>
-    </details>
-    <% } %> 
-  <% break; 
-  } 
-  case "schemas": { %>
-    <% for (const schema of schemas) { %>
-    <details>
-      <summary>
-        <h4><% schema.key %></h4>
-      </summary>
-      <pre><code>
-        <% schema.content %>
+</details>
+[: } :]
+[: break;
+}
+case "schemas": { :]
+[: for (const schema of schemas) { :]
+<details>
+  <summary>
+    <h4>[: schema.key :]</h4>
+  </summary>
+  <pre><code>
+        [: schema.content :]
       </code></pre>
-    </details>
-    <% } %> 
-  <% break; 
-  } %>
-<% } %>
-
+</details>
+[: } :]
+[: break;
+} :]
+[: } :]
