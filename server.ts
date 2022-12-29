@@ -20,7 +20,7 @@ const SERVER_INFO: Uts.IApgUtsServerInfo = {
 
 const host = await getHost(SERVER_INFO.localPort);
 
-ApgTngService.Init("./templates", host, {
+ApgTngService.Init("./templates", host!, {
   useCache: false,
   cacheChunksLongerThan: 100,
   consoleLog: true,
@@ -40,20 +40,24 @@ server.run();
 Uts.ApgUtsServer.StartupResume(SERVER_INFO);
 
 async function getHost(alocalPort: number) {
+
   const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") !== undefined;
-  let r = "";
-  if (isDenoDeploy) {
-    const env = await DotEnv.configAsync();
-    if (env.HOST_NAME != undefined) {
-      r = env.HOST_NAME
+
+  if (!isDenoDeploy) {
+    const _env = await DotEnv.configAsync({ export: true });
+  }
+
+  let r = Deno.env.get("HOST_NAME");
+
+  if (r == undefined) {
+
+    if (isDenoDeploy) {
+      throw new Error("[HOST_NAME] field is missing the Deno Deploy's environment variables.");
     }
     else {
-      throw new Error('"HOST_NAME" field is missing the .env file. In Deno Deploy the desired host must be specified.');
+      r = 'http://localhost:' + alocalPort.toString();
     }
   }
 
-  else {
-    r = 'http://localhost:' + alocalPort
-  }
   return r;
 }
