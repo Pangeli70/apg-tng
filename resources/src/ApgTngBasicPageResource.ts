@@ -11,25 +11,25 @@ export abstract class ApgTngBasicPageResource extends Drash.Resource {
 
     protected async prepareToolbar(atoolBarLinks: { href: string; caption: string; }[]) {
 
-        const remotePartial = ApgTngService.Host + "/deliver/pico/pico_h2_toolbar.html";
+        const toolBarPartial = "/deliverables/pico/pico_h2_toolbar.html";
 
         const toolBarData: any = { toolbar: atoolBarLinks };
 
-        const toolbar = await ApgTngService.Render(remotePartial, toolBarData) as string;
+        const toolbar = await ApgTngService.Render(toolBarPartial, toolBarData) as string;
         return toolbar;
     }
 
 
     protected async prepareFooter(agithubProjectPage: string, apageReleaseDate: string) {
 
-        const remotePartial = ApgTngService.Host + "/deliver/pico/pico_page_footer.html";
+        const footerPartial = "/deliverables/pico/pico_page_footer.html";
 
         const footerData: { githubProjectPage: string; pageReleaseDate: string; } = {
             githubProjectPage: agithubProjectPage,
             pageReleaseDate: apageReleaseDate
         }
 
-        const toolbar = await ApgTngService.Render(remotePartial, footerData) as string;
+        const toolbar = await ApgTngService.Render(footerPartial, footerData) as string;
         return toolbar;
     }
 }

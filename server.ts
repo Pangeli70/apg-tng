@@ -24,7 +24,7 @@ ApgTngService.Init("./templates", host!, {
   useCache: false,
   cacheChunksLongerThan: 100,
   consoleLog: true,
-  deliverablesPath: "./deliverables"
+  deliverablesPath: "./templates/deliverables"
 });
 
 const server = new Drash.Server({
@@ -52,7 +52,7 @@ async function getHost(alocalPort: number) {
   if (r == undefined) {
 
     if (isDenoDeploy) {
-      throw new Error("[HOST_NAME] field is missing the Deno Deploy's environment variables.");
+      throw new Error("[HOST_NAME] field is missing in the Deno Deploy's environment variables.");
     }
     else {
       r = 'http://localhost:' + alocalPort.toString();

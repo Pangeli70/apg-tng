@@ -38,8 +38,8 @@ export class ApgTngCacheResource extends ApgTngBasicPageResource {
             },
             {
                 href: "/cache",
-                caption: "Cache Menu"
-            },
+                caption: "Cache menu"
+            }
         ];
         
         const templateData: any = {

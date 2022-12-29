@@ -10,7 +10,7 @@ import { ApgTngBasicPageResource } from "./ApgTngBasicPageResource.ts"
 
 export class ApgTngHomeResource extends ApgTngBasicPageResource {
 
-    public override paths = ["/"];
+    public override paths = ["/","/home"];
 
     public async GET(_request: Drash.Request, response: Drash.Response) {
 
@@ -24,7 +24,7 @@ export class ApgTngHomeResource extends ApgTngBasicPageResource {
         },
         {
             href: "/cache",
-            caption: "Cache management"
+            caption: "Cache"
         }];
 
 

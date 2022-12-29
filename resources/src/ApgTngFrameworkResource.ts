@@ -6,13 +6,23 @@
  */
 import { Drash, StdPath } from "../../deps.ts";
 import { ApgTngService } from "../../mod.ts";
+import { ApgTngBasicPageResource } from "./ApgTngBasicPageResource.ts";
 
 
-export class ApgTngFrameworkResource extends Drash.Resource {
+export class ApgTngFrameworkResource extends ApgTngBasicPageResource {
 
     public override paths = ["/deliverable/framework/:name"];
 
     public async GET(request: Drash.Request, response: Drash.Response) {
+
+
+        const toolbarLinks: { href: string; caption: string; }[] = [{
+            href: "/",
+            caption: "Home"
+        }, {
+            href: "/deliverable/frameworks",
+            caption: "Frameworks"
+        }];
 
         const framework = request.pathParam("name");
 
@@ -37,8 +47,8 @@ export class ApgTngFrameworkResource extends Drash.Resource {
             },
             page: {
                 title: "Deliverable partials for " + framework + " framework",
-                toolbar: await this.#prepareToolbar(),
-                released: "2022/10/31"
+                toolbar: await this.prepareToolbar(toolbarLinks),
+                footer: await this.prepareFooter("Pangeli70/apg-tng", "2022/10/21"),
             },
             links
         }
@@ -49,20 +59,5 @@ export class ApgTngFrameworkResource extends Drash.Resource {
 
     }
 
-    async #prepareToolbar() {
-        
-        const remotePartial = ApgTngService.Host + "/deliver/pico/pico_h2_toolbar.html";
-        
-        const toolbarLinks: { href: string; caption: string; }[] = [{
-            href: "/",
-            caption: "Home"
-        }, {
-            href: "/deliverable/frameworks",
-            caption: "Frameworks"
-        }];
-        const toolBarData: any = { toolbar: toolbarLinks };
 
-        const toolbar = await ApgTngService.Render(remotePartial, toolBarData) as string;
-        return toolbar;
-    }
 }

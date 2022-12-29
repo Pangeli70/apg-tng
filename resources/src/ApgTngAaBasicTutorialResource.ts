@@ -7,19 +7,28 @@
 import { Drash, Uts } from "../../deps.ts";
 import { ApgTngService } from "../../mod.ts"
 import { ApgTngExamplesData } from "../data/ApgTngExamplesData.ts";
+import { ApgTngBasicPageResource } from "./ApgTngBasicPageResource.ts";
 
-export class ApgTngAaBasicTutorialResource extends Drash.Resource {
+export class ApgTngAaBasicTutorialResource extends ApgTngBasicPageResource {
 
     public override paths = ["/basic/tutorial"];
 
     public async GET(_request: Drash.Request, response: Drash.Response) {
 
-        const toolBarHtml = `
-    <div>
-        <a href="/">Home</a> |
-        <a href="/basic">Example</a>
-    </div>
-    `
+        const toolbarLinks: { href: string; caption: string; }[] = [
+            {
+                href: "/",
+                caption: "Home"
+            },
+            {
+                href: "/examples",
+                caption: "Examples"
+            },
+            {
+                href: "/basic/example",
+                caption: "Example"
+            },
+        ];
         const pageRawHtml = `
     [: extends("/templates/pico_template.html") :]
 
@@ -81,8 +90,8 @@ export class ApgTngAaBasicTutorialResource extends Drash.Resource {
             site: ApgTngExamplesData.site,
             page: {
                 title: "Basic Tng tutorial",
-                toolbar: toolBarHtml,
-                released: "2022/09/10"
+                toolbar: await this.prepareToolbar(toolbarLinks),
+                footer: await this.prepareFooter("Pangeli70/apg-tng", "2022/10/09"),
             },
             tutorial: {
                 page: pageHtml,

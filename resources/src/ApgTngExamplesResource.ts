@@ -16,15 +16,7 @@ export class ApgTngExamplesResource extends ApgTngBasicPageResource {
 
         const toolbarLinks: { href: string; caption: string; }[] = [{
             href: "/home",
-            caption: "Documentation"
-        },
-        {
-            href: "/deliverable/frameworks",
-            caption: "Deliverables"
-        },
-        {
-            href: "/cache",
-            caption: "Cache management"
+            caption: "Home"
         }];
 
 
