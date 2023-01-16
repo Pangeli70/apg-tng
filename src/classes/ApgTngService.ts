@@ -500,9 +500,17 @@ export class ApgTngService {
         if (chunk == "") {
             return r;
         }
+
         const jsKeywordsAndSymbolsRegex =
-            /(^( )?(function|var|let|const|=|if|else|switch|case|break|for|do|while|{|}|;))(.*)?/g;
-        r = (chunk.match(jsKeywordsAndSymbolsRegex)) ?
+            // Original from jay
+            // /(^( )?(function|var|let|const|=|if|else|switch|case|break|for|do|while|push|{|}|;))(.*)?/g;
+            // got by chatGpt 2023/01/15 
+            // /(break|case|catch|class|const|continue|debugger|default|delete|do|else|export|extends|finally|for|function|if|import|in|instanceof|let|new|push|return|super|switch|this|throw|try|typeof|var|void|while|with|yield|\{|\}|;)/g
+            // Simplified by previous
+            /(break|case|const|continue|do|else|for|function|if|instanceof|let|new|push|return|switch|this|typeof|var|while|\{|\}|;|=)/g
+        const matchArray = chunk.match(jsKeywordsAndSymbolsRegex);
+
+        r = (matchArray) ?
             // we expect supported js code, so insert js chunk as is
             chunk :
             // instead insert as value automatically converted in string by interpolation
@@ -554,12 +562,19 @@ export class ApgTngService {
             "Template interpolation";
 
         let printableJS = (typeof (atemplateFunction) == "string") ?
-            `function rawJavascript (templateData){\n${atemplateFunction}\n}` :
-            `function compiledJavascript (templateData){\n${atemplateFunction.toString()}\n}`;
+            `\n${atemplateFunction}\n}` :
+            `\n${atemplateFunction.toString()}\n}`;
+
         printableJS = printableJS
-            .replaceAll(">", "&gt")
-            .replaceAll("<", "&lt")
-            .replaceAll("%", "&amp");
+            .replaceAll(">", "&gt;")
+            .replaceAll("<", "&lt;")
+            .replaceAll("%", "&amp;")
+            .replaceAll(" ", "&nbsp;")
+            .replaceAll("\n", "\n&nbsp;&nbsp;");
+
+        printableJS = (typeof (atemplateFunction) == "string") ?
+            `function rawJavascript (templateData){\n${printableJS}\n}` :
+            `function compiledJavascript (templateData){\n${printableJS}\n}`;
 
         // Highlight recognized errors
         if (notDefIndex != -1) {
@@ -579,10 +594,41 @@ export class ApgTngService {
                 <h1>${this.CLASS_NAME} Error! ${errorType}</h1>
                 <h2>In the template: ${atemplateName}</h2>
                 <h3 style="color:red;">${aerror.message}</h3>
-                <p>Cut and paste following code to a linter as potentially invalid javascript.</p>
-                <hr>
-                <pre style="font-family: 'Lucida console','Courier new'"><code>${printableJS}</code></pre>
+                <p>
+                    Cut and paste following code to a linter as potentially invalid javascript. 
+                    <button onclick="copyPreContent()">Copy</button>
+                </p>
+                <p>
+                    <pre id="printableJS" style="font-family: 'Lucida console','Courier new'; width:100%; height:20rem;">
+                        ${printableJS}
+                    </pre>
+                </p>
             </body>
+            <script>
+
+                function copyPreContent() {
+                    var pre = document.getElementById("printableJS");
+                    var preContent = pre.innerText;
+
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(preContent).then(function () {
+                            console.log("Content copied to clipboard");
+                        }, function (err) {
+                            console.error("Failed to copy text: ", err);
+                        });
+                    } else {
+                        // fallback for older browsers
+                        var textArea = document.createElement("textarea");
+                        textArea.value = preContent;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        document.execCommand("copy");
+                        textArea.remove();
+                        console.log("Content copied to clipboard");
+                    }
+                }
+
+            </script>
         </html>
         `;
 
