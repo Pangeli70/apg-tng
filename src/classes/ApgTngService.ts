@@ -48,14 +48,14 @@ export class ApgTngService {
 
     private static _templatesPath: string;
 
-    // TODO @1 APG ... -- We still need to implement partial("{Host}/file.html")
+    // TODO @1 APG 2023/02/15 -- We still need to implement partial("{Host}/file.html")
     private static _host: string;
 
     private static _options: IApgTngServiceOptions = {
         useCache: false,
         cacheChunksLongerThan: 100,
         consoleLog: false,
-        // TODO remove this from here, maybe move inside ApgTngServer or not? 
+        // TODO @2 APG 2023/02/15 Investigate if remove this from here, maybe move inside ApgTngServer or not?
         deliverablesPath: ""
     }
 
@@ -114,12 +114,21 @@ export class ApgTngService {
         }
     }
 
-
+    /**
+     * Render the templates interpolating the data
+     * @param atemplateFile Template file, can be either local or remote
+     * @param atemplateData Data used for template interpolation
+     * @param auseCache we can override cache settings for this call
+     * @param adebug instead than rendering the HTML renders the js function
+     * @returns Html
+     */
     static async Render(
         atemplateFile: string,
         atemplateData: unknown,
-        auseCache = true // we can override cache usage per single call
+        auseCache = true,
+        adebug = false
     ) {
+        // TODO @3 APG 2023/02/15 -- Implement reference pages
         if (this._options.consoleLog)
             console.log(`${this.CLASS_NAME}.${this.Render.name} invoked for template ${atemplateFile}`);
 
@@ -157,10 +166,17 @@ export class ApgTngService {
                 return this.#handleJSError(err, template, jsCode);
             }
         }
-
+        // TODO @3 APG 2023/02/15 -- This method is too big. Split
         let result = "";
         try {
-            result = templateFunction!.apply(this, [atemplateData]);
+
+            if (adebug) {
+                result = this.#handleJSError(new Error(), template, templateFunction!);
+            }
+            else {
+
+                result = templateFunction!.apply(this, [atemplateData]);
+            }
             // now we are sure that works so we can store!
             if (weHaveNewFunctionToStoreInCache) {
                 this._functionsCache.set(template, templateFunction!);
@@ -169,6 +185,7 @@ export class ApgTngService {
                     console.log(`${this.CLASS_NAME}: functions cache now contains ${this._functionsCache.size.toString()} items.`);
                 }
             }
+
         } catch (err) {
             result = this.#handleJSError(err, template, templateFunction!);
         }
@@ -176,6 +193,7 @@ export class ApgTngService {
     }
 
     static #regexConverter(astring: string) {
+        // TODO @5 APG 2023/02/15 -- Investigate performace improvements
         let r = astring;
         r = r.replaceAll("(", "\\(");
         r = r.replaceAll(")", "\\)");
@@ -261,10 +279,8 @@ export class ApgTngService {
             let partialHtml = await this.#getTemplateFile(partialFile, auseCache);
 
             let partialArgs: string[] = [];
-            if (partialParams.length == 2) {
-                const argsLine = `${this._beginMkp} const args = ${partialParams[1].trim()} ${this._endMkp}\n`;
-                partialHtml = argsLine + partialHtml;
-                partialArgs = this.#getPartialArgs(partialParams[1]);
+            if (partialParams.length > 1) {
+                partialArgs = this.#getPartialArgs(partialParams);
             }
             if (partialArgs.length > 0) {
                 for (let i = 0; i < partialArgs.length; i++) {
@@ -301,7 +317,7 @@ export class ApgTngService {
 
 
     static #getPartialParams(apartial: string) {
-        // [: partial("...",[...]) :]
+        // [: partial("...",...) :]
         const partialBeginMkp = `${this._beginMkp} ${eApgTngMkpDictionary.PARTIAL}(`;
         const partialEndMkp = `) ${this._endMkp}`;
 
@@ -311,14 +327,23 @@ export class ApgTngService {
         return r;
     }
 
-    static #getPartialArgs(apartialArgs: string) {
-        // [: partial("...",[ a, b, c]) :]
-        const r = apartialArgs
-            .replace(this._beginArgMkp, "")
-            .replace(this._endArgMkp, "")
-            .trim()
-            .split(",")
-        r.forEach(a => a = a.trim());
+    static #getPartialArgs(apartialParams: string[]) {
+        // [: partial("...", [a], [b], [c], ...) :]
+        // TODO @3 APG 2023/02/15 -- Implement reference pages
+        const r: string[] = []
+
+        for (let i = 0; i < apartialParams.length; i++) {
+
+            if (i > 0) {
+
+                const argument = apartialParams[i]
+                    .replace(this._beginArgMkp, "")
+                    .replace(this._endArgMkp, "")
+                    .trim()
+
+                r.push(argument);
+            }
+        }
         return r;
     }
 
@@ -452,7 +477,7 @@ export class ApgTngService {
                     const begin = i1 + beginMkp.length - 1;
                     const end = i2 + 1;
                     const content = r.substring(begin, end);
-                    // TODO @3 APG 20221229 -- This can throw!!! Manage this 
+                    // TODO @1 APG 20221229 -- This can throw!!! Manage this 
                     const _s = JSON.parse(content);
                     this._arguments.set(aportionName, content);
                     r = r.substring(0, i1) + r.substring(i2 + endMkp.length, r.length);
