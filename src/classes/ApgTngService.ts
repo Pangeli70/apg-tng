@@ -44,7 +44,7 @@ export class ApgTngService {
     private static _examples: Map<string, string> = new Map();
 
     // Partials/Deliverables arguments in JSON format
-    private static _arguments: Map<string, string> = new Map();
+    private static _arguments: Map<string, any[]> = new Map();
 
     private static _templatesPath: string;
 
@@ -278,15 +278,22 @@ export class ApgTngService {
             partialFile = partialFile.startsWith("http") ? partialFile : this._templatesPath + partialFile;
             let partialHtml = await this.#getTemplateFile(partialFile, auseCache);
 
-            let partialArgs: string[] = [];
-            if (partialParams.length > 1) {
-                partialArgs = this.#getPartialArgs(partialParams);
-            }
-            if (partialArgs.length > 0) {
-                for (let i = 0; i < partialArgs.length; i++) {
-                    const arg = partialArgs[i];
-                    const placeholder = "[#" + i.toString() + "]";
-                    partialHtml = partialHtml.replaceAll(placeholder, arg)
+            const args = this._arguments.get(partialFile);
+            if (args && Array.isArray(args) && args.length > 0) {
+                let partialArgs: string[] = [];
+                if (partialParams.length > 1) {
+                    partialArgs = this.#getPartialArgs(partialParams);
+                }
+                if (partialArgs.length == 0) {
+                    // TODO @2 Remove throws all around and replace with RstAsserts 
+                    throw new Error(`Partial [${partialFile}] needs arguments but none was passed`)
+                }
+                else {
+                    for (let i = 0; i < partialArgs.length; i++) {
+                        const arg = partialArgs[i];
+                        const placeholder = "[#" + i.toString() + "]";
+                        partialHtml = partialHtml.replaceAll(placeholder, arg)
+                    }
                 }
             }
 
@@ -477,9 +484,18 @@ export class ApgTngService {
                     const begin = i1 + beginMkp.length - 1;
                     const end = i2 + 1;
                     const content = r.substring(begin, end);
-                    // TODO @1 APG 20221229 -- This can throw!!! Manage this 
-                    const _s = JSON.parse(content);
-                    this._arguments.set(aportionName, content);
+                    let argsObj: any = {};
+                    try {
+                        argsObj = JSON.parse(content);
+                    }
+                    catch (error) {
+                        throw new Error('Parsing portion file: ' + error.message)
+                    }
+                    const args: any[] = [];
+                    for (const arg in argsObj) {
+                        args.push(argsObj[arg])
+                    }
+                    this._arguments.set(aportionName, args);
                     r = r.substring(0, i1) + r.substring(i2 + endMkp.length, r.length);
                     found = true;
                 }
