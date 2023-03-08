@@ -48,14 +48,14 @@ export class ApgTngService {
 
     private static _templatesPath: string;
 
-    // TODO @1 APG 2023/02/15 -- We still need to implement partial("{Host}/file.html")
+    // TODO @1 We still need to implement partial("{Host}/file.html") --APG 2023/02/15
     private static _host: string;
 
     private static _options: IApgTngServiceOptions = {
         useCache: false,
         cacheChunksLongerThan: 100,
         consoleLog: false,
-        // TODO @2 APG 2023/02/15 Investigate if remove this from here, maybe move inside ApgTngServer or not?
+        // TODO @2 Investigate if remove this from here, maybe move inside ApgTngServer or not? --APG 2023/02/15 
         deliverablesPath: ""
     }
 
@@ -128,7 +128,7 @@ export class ApgTngService {
         auseCache = true,
         adebug = false
     ) {
-        // TODO @3 APG 2023/02/15 -- Implement reference pages
+        // TODO @3 Implement doumentation pages -- APG 2023/02/15 
         if (this._options.consoleLog)
             console.log(`${this.CLASS_NAME}.${this.Render.name} invoked for template ${atemplateFile}`);
 
@@ -166,7 +166,7 @@ export class ApgTngService {
                 return this.#handleJSError(err, template, jsCode);
             }
         }
-        // TODO @3 APG 2023/02/15 -- This method is too big. Split
+        // TODO @3 This method is too big. Split -- APG 2023/02/15
         let result = "";
         try {
 
@@ -193,7 +193,7 @@ export class ApgTngService {
     }
 
     static #regexConverter(astring: string) {
-        // TODO @5 APG 2023/02/15 -- Investigate performace improvements
+        // TODO @5 Investigate performace improvements -- APG 2023/02/15
         let r = astring;
         r = r.replaceAll("(", "\\(");
         r = r.replaceAll(")", "\\)");
@@ -285,7 +285,7 @@ export class ApgTngService {
                     partialArgs = this.#getPartialArgs(partialParams);
                 }
                 if (partialArgs.length == 0) {
-                    // TODO @2 Remove throws all around and replace with RstAsserts 
+                    // TODO @2 Remove throws all around and replace with RstAsserts -- APG 2023/02/15
                     throw new Error(`Partial [${partialFile}] needs arguments but none was passed`)
                 }
                 else {
@@ -336,7 +336,7 @@ export class ApgTngService {
 
     static #getPartialArgs(apartialParams: string[]) {
         // [: partial("...", [a], [b], [c], ...) :]
-        // TODO @3 APG 2023/02/15 -- Implement reference pages
+        // TODO @3 Implement documentation pages -- APG 2023/02/15
         const r: string[] = []
 
         for (let i = 0; i < apartialParams.length; i++) {
