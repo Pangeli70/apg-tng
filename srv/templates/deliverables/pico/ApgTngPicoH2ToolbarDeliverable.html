@@ -1,0 +1,22 @@
+<!--
+  ApgTngPicoH2ToolbarDeliverable
+  @module [apg-tng]
+  @author [APG] Angeli Paolo Giusto
+  @version 0.9.7 [APG 2023/05/28]
+-->
+
+[: schema("/deliverables/schemas/ApgTngLinksArraySchema.json") :]
+
+[: example("/deliverables/examples/ApgTngLinksArrayExample.json") :]
+
+[: arguments(["_links_"]) :]
+
+<h2 style="text-align: center;">
+  [: for (const link of _links_) { :]
+
+  <a href="[: link.href :]" role="button" style="margin: 0.5rem;" title="[: link.description :]">
+    [: link.caption :]
+  </a>
+
+  [: } :]
+</h2>

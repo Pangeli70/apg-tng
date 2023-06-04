@@ -1,63 +1,38 @@
 /** -----------------------------------------------------------------------
- * @module [Tng/Application]
+ * @module [apg-tng]
  * @author [APG] ANGELI Paolo Giusto
  * @version 0.9.1 [APG 2022/09/11] Deno Deploy Beta
  * @version 0.9.2 [APG 2022/10/31] Deliverables
  * @version 0.9.5 [APG 2022/12/29] Partial arguments and new markup
+ * @version 0.9.7 [APG 2023/05/27] Separation of concerns lib/srv
  * -----------------------------------------------------------------------
  */
-import { Drash, Uts, DotEnv } from "./deps.ts";
-import { resources } from "./res.ts";
-import { services } from "./svcs.ts";
-import { ApgTngService } from "./mod.ts";
+import { Edr, Uts, Tng, Dir } from "./srv/deps.ts";
+import { ApgTngResources, ApgTngServices } from "./srv/mod.ts";
 
-const SERVER_INFO: Uts.IApgUtsServerInfo = {
-  name: 'Apg-Tng',
-  title: 'SSR Html template engine',
-  subtitle: 'Examples and tutorials',
-  localPort: 49601
-}
+const serverInfo = Dir.ApgDirServer.GetInfo(Dir.eApgDirEntriesIds.tng);
 
-const host = await getHost(SERVER_INFO.localPort);
+const remoteTngHost = Tng.ApgTngService.GetRemoteHostFromEnv(serverInfo.localPort);
 
-ApgTngService.Init("./templates", host!, {
+Tng.ApgTngService.Init("./srv/templates", remoteTngHost!, {
   useCache: false,
   cacheChunksLongerThan: 100,
   consoleLog: true,
-  deliverablesPath: "./templates/deliverables"
+  deliverablesPath: "./srv/templates/deliverables"
 });
 
-const server = new Drash.Server({
+const server = new Edr.Drash.Server({
   hostname: '0.0.0.0',
-  port: SERVER_INFO.localPort,
-  resources: resources,
-  services: services,
+  port: serverInfo.localPort,
+  resources: ApgTngResources,
+  services: ApgTngServices,
   protocol: "http"
 });
 
 server.run();
 
-Uts.ApgUtsServer.StartupResume(SERVER_INFO);
+Dir.ApgDirServer.StartupResume(serverInfo);
 
-async function getHost(alocalPort: number) {
 
-  const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") !== undefined;
 
-  if (!isDenoDeploy) {
-    const _env = await DotEnv.configAsync({ export: true });
-  }
 
-  let r = Deno.env.get("HOST_NAME");
-
-  if (r == undefined) {
-
-    if (isDenoDeploy) {
-      throw new Error("[HOST_NAME] field is missing in the Deno Deploy's environment variables.");
-    }
-    else {
-      r = 'http://localhost:' + alocalPort.toString();
-    }
-  }
-
-  return r;
-}

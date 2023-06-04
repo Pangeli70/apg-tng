@@ -1,0 +1,103 @@
+<!--
+  ApgTngPicoDeployMaster_0_9_7
+  @module [apg-tng]
+  @author [APG] ANGELI Paolo Giusto
+  @version 0.9.7 [APG 2023/04/25] 
+  @remarks This version uses the standard Tng markups ad assets from https://apg-cdn.deno.dev
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <title>
+      [: _site_.name :]: [: _site_.version :]
+    </title>
+    <meta charset="UTF-8" />
+    <meta content="IE=edge" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta name="author" content="APG Angeli Paolo Giusto" />
+    <meta name="generator" content="Deno+Drash" />
+    <meta name="keywords" content="Deno, Drash, APG, Angeli Paolo Giusto, Paolo Angeli" />
+    <meta name="application-name" content="[: _site_.name :]" />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/x-icon"
+          href="https://apg-cdn.deno.dev/assets/img/ico/Apg-favicon-2022.ico" />
+    <!-- <link rel="shortcut icon" type="image/x-icon"
+          href="/assets/img/ico/Apg-favicon-2022.ico" /> -->
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet"
+          href="https://unpkg.com/@picocss/pico@latest/css/pico.classless.min.css" />
+
+    <link rel="stylesheet" href="https://apg-cdn.deno.dev/assets/css/Apg-pico-custom.css" />
+    <!-- <link rel="stylesheet" 
+          href="/assets/css/Apg-pico-custom.css" /> -->
+  </head>
+
+  <body>
+    <header style="padding: 0">
+      <section id="title" style="padding: 0; margin: 0">
+        <table>
+          <tr>
+            <td style="width:4rem">
+              <a href="/" title="Home">
+                <img title="Logo" style="min-width:3rem; min-height:3rem; "
+                     src="https://apg-cdn.deno.dev/assets/img/png/APG-logo-2022-128px.png" />
+                <!-- <img title="Logo" style="min-width:3rem; min-height:3rem; "
+                     src="/assets/img/png/APG-logo-2022-128px.png" /> -->
+              </a>
+            </td>
+            <td>
+              <h2 style="margin-bottom: 0px">
+                [: _site_.name :]
+                <span style="font-size: 20%">
+                  [: _site_.version :]
+                </span><br>
+                <span style="font-size: 50%">
+                  [: _site_.title :]
+                </span>
+              </h2>
+            </td>
+          </tr>
+        </table>
+      </section>
+
+      [: if ( _page_.toolbar ) { :]
+      <section id="bar" style="text-align: center;">
+        [: _page_.toolbar :]
+        <hr>
+      </section>
+      [: } :]
+
+      <h1 class="apg-page-title">
+        [: _page_.title :]
+      </h1>
+
+    </header>
+
+    <main style="padding: 0">
+      [: yield :]
+    </main>
+
+    <footer style="padding: 0">
+      <hr />
+      <section id="footer" style="padding: 0; margin: 2em, 0, 0, 0">
+        <p style="text-align: center; font-size: 0.5em">
+          <em>
+            © 2017-2023 APG: free man angeli paolo giusto.<br />
+            Made with &#10084; using
+            <a href="https://deno.land/" target="_blank">Deno</a>,
+            <a href="https://drash.land/" target="_blank"> Drash</a>,
+            <a href="https://www.picocss.com/" target="_blank">Pico Css</a><br />
+            SSR HTML by <a href="https://apg-cdn.deno.tng" target="_blank">Apg-Tng</a><br />
+            Page released: [: _page_.released :]
+          </em>
+        </p>
+      </section>
+    </footer>
+  </body>
+
+</html>

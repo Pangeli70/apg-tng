@@ -1,0 +1,23 @@
+<!--
+  ApgTngClasslessDetailsH4CodeDeliverable
+  @module [apg-tng]
+  @author [APG] Angeli Paolo Giusto
+  @version 0.9.7 [APG 2023/05/28]
+-->
+
+[: schema("/deliverables/schemas/ApgTngTitleAndContentArraySchema.json") :]
+
+[: example("/deliverables/examples/ApgTngTitleAndContentArrayExample.json") :]
+
+[: arguments(["_contents_"]) :]
+
+[: for (const item of [_contents_] ) { :]
+<details>
+  <summary>
+    <h4>[: item.title :] </h4>
+  </summary>
+  <pre> <code>
+        [: item.content :]
+        </code></pre>
+</details>
+[: } :]

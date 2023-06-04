@@ -1,0 +1,57 @@
+<details>
+  <summary>
+    <h2>Data interpolation</h2>
+  </summary>
+
+  <p>It is possible to insert values dynamically inside the templates using a
+    data object. The interpolator identifies
+    the fields of the data object and replaces the placeholders in the template
+    with the appropriate values </p>
+  <p>Having this data object for a simple menu:</p>
+  <p>
+  <pre><code>
+      const templateData = { 
+        _links_: [{ 
+            href: "/home", 
+            caption: "Home",
+            color: "red"
+          },
+          {
+            href: "/customers",
+            caption: "Customers",
+            color: "blue"
+          }
+          { 
+            href: "/orders", 
+            caption: "Orders",
+            color: "green"
+          }]
+      }
+    </code></pre>
+  </p>
+  <p>It is possible to write a simple template that creates all the links
+    dynamically</p>
+  <p>
+  <pre><code>
+        &#91;: for (const link of _links_ ) { :&#93;
+        &lt;p&gt;
+          &lt;a href="&#91;: link.href :&#93;" style="color: &#91;: link.color :&#93;"&gt;
+            &#91; link.caption &#93;
+          &lt;/a&gt;
+        &lt;/p&gt;
+        &#91;: } :&#93;
+      </code></pre>
+  </p>
+  <p>Please note that in the previous template we are using directly the field
+    names of the <code>templateData</code> object.
+    We use as a convention to surroud the fields with the "_" symbol eg: <code>_links_</code>
+    but it is not mandatory. Is optional to allow to quickly identify fields coming from the data object.
+    The builder of the javascript function wraps all the code inside a
+    <code>"with"</code> statement that simplifies the access to the fields.
+  </p>
+  <p>Interpolator uses backtick strings and ECMAScript's literals string
+    interpolation, so if specific formatting of the data is required it is
+    necessary to preformat the data as a string, before inserting it in the data
+    object.</p>
+
+</details>

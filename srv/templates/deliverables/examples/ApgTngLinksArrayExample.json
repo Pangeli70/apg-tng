@@ -1,0 +1,19 @@
+{
+  "_links_": [
+    {
+      "href": "http://Link1",
+      "caption": "Caption 1",
+      "description": "Description A"
+    },
+    {
+      "href": "http://Link2",
+      "caption": "Caption 2",
+      "description": "Description B"
+    },
+    {
+      "href": "http://Link3",
+      "caption": "Caption 3",
+      "description": "Description C"
+    }
+  ]
+}

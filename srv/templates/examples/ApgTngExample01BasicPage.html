@@ -1,0 +1,11 @@
+[: extends("/master/pico.html") :]
+
+<article>
+  <div style="max-width: 640px; margin: 50px auto;">
+    <h1>
+      Username: [: _user_.name :]
+    </h1>
+    <img src="[: _user_.image :]" style="width: 30%; float:left; margin-right: 2rem;">
+    [: partial("/partials/ApgTngExampleUserDetailsPartial.html") :]
+  </div>
+</article>
